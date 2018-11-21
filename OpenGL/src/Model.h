@@ -122,7 +122,7 @@ private:
 	{
 		for (unsigned int i = 0; i < node->mNumChildren; i++) {
 			string NodeName(node->mChildren[i]->mName.data);
-			if (NodeName.find(":") != string::npos || NodeName != "Armature") {
+			if (NodeName.find(":") != string::npos) {
 				string BoneName = NodeName;
 				unsigned int BoneIndex = 0;
 
@@ -132,16 +132,30 @@ private:
 					Bone_Mapping[BoneName] = BoneIndex;
 				}
 			}
-			//only uncomment if we need to load cylinder model
-			/*else {
-				string BoneName(node->mChildren[i]->mName.data);
+
+			if (NodeName != "parasiteZombie" && NodeName != "Armature"  && NodeName != "MutantMesh") {
+				string BoneName = NodeName;
 				unsigned int BoneIndex = 0;
 
-				if (Bone_Mapping.find(BoneName) == Bone_Mapping.end() && BoneName != "Amature") {
+				if (Bone_Mapping.find(BoneName) == Bone_Mapping.end()) {
 					BoneIndex = m_NumBones;
 					m_NumBones++;
 					Bone_Mapping[BoneName] = BoneIndex;
 				}
+			}
+
+						//only uncomment if we need to load cylinder model
+			/*else {
+				string BoneName(node->mChildren[i]->mName.data);
+				unsigned int BoneIndex = 0;
+				if (NodeName != "parasiteZombie" || NodeName != "Armature") {
+					if (Bone_Mapping.find(BoneName) == Bone_Mapping.end()) {
+						BoneIndex = m_NumBones;
+						m_NumBones++;
+						Bone_Mapping[BoneName] = BoneIndex;
+					}
+				}
+				
 			}*/
 
 		}

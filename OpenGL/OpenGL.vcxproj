@@ -144,6 +144,7 @@
     <None Include="res\object\body\skinning_test_4.fbx" />
     <None Include="res\object\body\turtle.fbx" />
     <None Include="res\object\body\turtle_texture.fbx" />
+    <None Include="res\object\body\VictoryMonster.fbx" />
     <None Include="res\object\cylinder\alien.fbx" />
     <None Include="res\object\cylinder\anim_cylinder.fbx" />
     <None Include="res\object\cylinder\anim_cylinder2.fbx" />
@@ -542,6 +543,10 @@
     <ClInclude Include="src\vendor\glm\vector_relational.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="res\object\body\Monster.png" />
+    <Image Include="res\object\body\Monster_mormal.png" />
+    <Image Include="res\object\body\MutantPointing.png" />
+    <Image Include="res\object\body\MutantPointing_normal.png" />
     <Image Include="res\object\body\pedobear.png" />
     <Image Include="res\object\body\Stormtrooper_D.png" />
     <Image Include="res\object\body\texture\all_color_final_5.jpg" />
