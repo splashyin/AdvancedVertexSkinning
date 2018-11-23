@@ -71,7 +71,7 @@ void main() {
 	mat4x4 DQmat = DQtoMat(blendDQ[0], blendDQ[1]);
 
 
-	vec4 pos = DQmat * vec4(aPos, 1.0);
+	vec4 pos = BoneTransform * vec4(aPos, 1.0);
 	gl_Position = projection * view * model * pos;
 
 	FragPos = vec3(model* pos);

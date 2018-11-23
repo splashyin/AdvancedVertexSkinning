@@ -133,7 +133,7 @@ private:
 				}
 			}
 
-			if (NodeName != "parasiteZombie" && NodeName != "Armature"  && NodeName != "MutantMesh") {
+			if (NodeName != "parasiteZombie" && NodeName != "Armature"  && NodeName != "MutantMesh" && NodeName != "Cylinder") {
 				string BoneName = NodeName;
 				unsigned int BoneIndex = 0;
 
@@ -313,8 +313,7 @@ private:
 				aiMatrix4x4 tp1 = mesh->mBones[i]->mOffsetMatrix;
 				m_BoneInfo[BoneIndex].offset = glm::transpose(glm::make_mat4(&tp1.a1));
 			}
-			
-
+		
 			for (unsigned int n = 0; n < mesh->mBones[i]->mNumWeights; n++) {
 				unsigned int vid = mesh->mBones[i]->mWeights[n].mVertexId + NumVertices;//absolute index
 				float weight = mesh->mBones[i]->mWeights[n].mWeight;
