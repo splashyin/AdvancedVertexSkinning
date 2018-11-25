@@ -448,6 +448,10 @@
     <None Include="res\object\cylinder\leafbone.fbx" />
     <None Include="res\object\body\Pointing.fbx" />
     <None Include="res\object\body\VictoryMonster.fbx" />
+    <None Include="res\object\body\dance.fbx" />
+    <None Include="res\object\body\SambaDancing.fbx" />
+    <None Include="res\object\body\balei.fbx" />
+    <None Include="res\object\body\pray.fbx" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Shader.h">

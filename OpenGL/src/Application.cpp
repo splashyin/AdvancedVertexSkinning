@@ -40,6 +40,9 @@ float deltaTime = 0.0f;	// Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
 float animationTime = 0.0f;
 
+
+
+
 int main(void)
 {
 	GLFWwindow* window;
@@ -81,12 +84,14 @@ int main(void)
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_PROGRAM_POINT_SIZE);
 
-	Shader modelShader("res/shaders/vertex.shader", "res/shaders/fragment.shader");
+	//Shader modelShader("res/shaders/vertex.shader", "res/shaders/fragment.shader");
 	Shader lampShader("res/shaders/lamp.vs", "res/shaders/lamp.fs");
 	Shader skeletonShader("res/shaders/skeleton.vs", "res/shaders/skeleton.fs");
+	Shader modelShader("res/shaders/vertex.shader", "res/shaders/fragment.shader");
 
 	//Model aModel("res/object/body/pedobear_animated.fbx");
 	//Model aModel("res/object/body/skinning_test_2.fbx");
+	//Model aModel("res/object/body/dance.fbx");
 	//Model aModel("res/object/body/skinning_test.fbx");
 	//Model aModel("res/object/body/skinning_test_3.fbx");
 	//Model aModel("res/object/body/silly_dance.fbx");
@@ -95,7 +100,8 @@ int main(void)
 	//Model aModel("res/object/cylinder/leafbone.fbx");
 	//Model aModel("res/object/body/groo.fbx");
 	//Model aModel("res/object/body/Pointing.fbx");
-	Model aModel("res/object/body/VictoryMonster.fbx");
+	Model aModel("res/object/body/balei.fbx");
+	//Model aModel("res/object/body/VictoryMonster.fbx");
 	//Model aModel("res/object/body/get_up.fbx");
 	//Model aModel("res/object/body/sk2_leafbone.fbx");
 	
@@ -115,18 +121,18 @@ int main(void)
 
 		animationTime = currentFrame - startFrame;
 
-		//Input...
 		processInput(window);
+		
 		wireframeMode(window);
 
 		//glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//wireframe mode for debugging
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		
 		//activate model shader
 		// render 3D model
@@ -157,7 +163,13 @@ int main(void)
 		modelShader.setVec3("lightPos", lamp.Position);
 		modelShader.setVec3("lightColor", lamp.Color);
 		modelShader.setVec3("viewPos", camera.Position);
-
+		//Toggle LBS
+		if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
+			modelShader.setBool("lbsOn", GL_TRUE);
+		}
+		else {
+			modelShader.setBool("lbsOn", GL_FALSE);
+		}
 		aModel.Draw(modelShader);
 
 		//activate lamp shader
@@ -185,6 +197,7 @@ int main(void)
 		skeletonShader.setMat4("model", skeletom_model);
 		skeleton.Draw(skeletonShader);
 
+
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
@@ -200,7 +213,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 void processInput(GLFWwindow *window) {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
-
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		camera.ProcessKeyboard(FORWARD, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -209,6 +221,10 @@ void processInput(GLFWwindow *window) {
 		camera.ProcessKeyboard(LEFT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camera.ProcessKeyboard(RIGHT, deltaTime);
+
+	
+		
+
 }
 
 void wireframeMode(GLFWwindow *window) {

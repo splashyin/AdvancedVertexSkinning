@@ -14,6 +14,7 @@ uniform mat4 view;
 uniform mat4 projection;
 uniform mat4 gBones[100];
 uniform mat2x4 dqs[100];
+uniform bool lbsOn;
 
 mat4x4 DQtoMat(vec4 real, vec4 dual) {
 	mat4x4 m;
@@ -45,15 +46,15 @@ mat4x4 DQtoMat(vec4 real, vec4 dual) {
 }
 
 void main() {
-	
+
 
 	TexCoord = aTexCoords;
-	
+
 	mat4 BoneTransform = gBones[BoneIDs[0]] * Weights[0];
 	BoneTransform += gBones[BoneIDs[1]] * Weights[1];
 	BoneTransform += gBones[BoneIDs[2]] * Weights[2];
 	BoneTransform += gBones[BoneIDs[3]] * Weights[3];
-	
+
 	mat2x4 dq0 = dqs[BoneIDs[0]];
 	mat2x4 dq1 = dqs[BoneIDs[1]];
 	mat2x4 dq2 = dqs[BoneIDs[2]];
@@ -71,9 +72,19 @@ void main() {
 	mat4x4 DQmat = DQtoMat(blendDQ[0], blendDQ[1]);
 
 
-	vec4 pos = BoneTransform * vec4(aPos, 1.0);
-	gl_Position = projection * view * model * pos;
+	if (lbsOn) {
+		vec4 pos = BoneTransform * vec4(aPos, 1.0);
+		gl_Position = projection * view * model * pos;
+		FragPos = vec3(model* pos);
+		Normal = mat3(transpose(inverse(BoneTransform))) * aNormal;
+	}
+	else
+	{
+		vec4 pos = DQmat * vec4(aPos, 1.0);
+		gl_Position = projection * view * model * pos;
+		FragPos = vec3(model* pos);
+		Normal = mat3(transpose(inverse(DQmat))) * aNormal;
+	}
 
-	FragPos = vec3(model* pos);
-	Normal = mat3(transpose(inverse(BoneTransform))) * aNormal;
+	
 }

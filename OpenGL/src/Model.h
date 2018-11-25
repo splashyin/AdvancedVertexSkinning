@@ -133,7 +133,7 @@ private:
 				}
 			}
 
-			if (NodeName != "parasiteZombie" && NodeName != "Armature"  && NodeName != "MutantMesh" && NodeName != "Cylinder") {
+			if (NodeName != "Body" &&NodeName != "metarig"&& NodeName != "parasiteZombie" && NodeName != "Armature"  && NodeName != "MutantMesh" && NodeName != "Cylinder") {
 				string BoneName = NodeName;
 				unsigned int BoneIndex = 0;
 
