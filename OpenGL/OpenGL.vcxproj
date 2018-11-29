@@ -139,11 +139,7 @@
     <None Include="res\object\body\Pointing.fbx" />
     <None Include="res\object\body\pray.fbx" />
     <None Include="res\object\body\push_up.fbx" />
-<<<<<<< HEAD
-    <None Include="res\object\body\PutBackShoulder.fbx" />
-=======
     <None Include="res\object\body\SambaDancing.fbx" />
->>>>>>> 891d5f99be59fe6519a1ba3f06f74aa4520b5dec
     <None Include="res\object\body\silly_dance.fbx" />
     <None Include="res\object\body\sk2_leafbone.fbx" />
     <None Include="res\object\body\skinning_test.fbx" />
