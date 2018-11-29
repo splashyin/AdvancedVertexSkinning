@@ -448,6 +448,7 @@
     <None Include="res\object\cylinder\leafbone.fbx" />
     <None Include="res\object\body\Pointing.fbx" />
     <None Include="res\object\body\VictoryMonster.fbx" />
+    <None Include="res\object\body\PutBackShoulder.fbx" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Shader.h">

@@ -94,8 +94,9 @@ int main(void)
 	//Model aModel("res/object/body/turtle_texture.fbx");
 	//Model aModel("res/object/cylinder/leafbone.fbx");
 	//Model aModel("res/object/body/groo.fbx");
-	//Model aModel("res/object/body/Pointing.fbx");
-	Model aModel("res/object/body/VictoryMonster.fbx");
+	Model aModel("res/object/body/Pointing.fbx");
+	//Model aModel("res/object/body/VictoryMonster.fbx");
+	//Model aModel("res/object/body/PutBackShoulder.fbx");
 	//Model aModel("res/object/body/get_up.fbx");
 	//Model aModel("res/object/body/sk2_leafbone.fbx");
 	
