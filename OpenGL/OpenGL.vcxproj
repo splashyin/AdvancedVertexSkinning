@@ -129,14 +129,21 @@
     <ClCompile Include="src\vendor\glm\detail\glm.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="res\object\body\balei.fbx" />
+    <None Include="res\object\body\dance.fbx" />
     <None Include="res\object\body\dinasour.fbx" />
     <None Include="res\object\body\get_up.fbx" />
     <None Include="res\object\body\groo.fbx" />
     <None Include="res\object\body\Mannequin_Animation.FBX" />
     <None Include="res\object\body\pedobear_animated.fbx" />
     <None Include="res\object\body\Pointing.fbx" />
+    <None Include="res\object\body\pray.fbx" />
     <None Include="res\object\body\push_up.fbx" />
+<<<<<<< HEAD
     <None Include="res\object\body\PutBackShoulder.fbx" />
+=======
+    <None Include="res\object\body\SambaDancing.fbx" />
+>>>>>>> 891d5f99be59fe6519a1ba3f06f74aa4520b5dec
     <None Include="res\object\body\silly_dance.fbx" />
     <None Include="res\object\body\sk2_leafbone.fbx" />
     <None Include="res\object\body\skinning_test.fbx" />

@@ -448,7 +448,14 @@
     <None Include="res\object\cylinder\leafbone.fbx" />
     <None Include="res\object\body\Pointing.fbx" />
     <None Include="res\object\body\VictoryMonster.fbx" />
+<<<<<<< HEAD
     <None Include="res\object\body\PutBackShoulder.fbx" />
+=======
+    <None Include="res\object\body\dance.fbx" />
+    <None Include="res\object\body\SambaDancing.fbx" />
+    <None Include="res\object\body\balei.fbx" />
+    <None Include="res\object\body\pray.fbx" />
+>>>>>>> 891d5f99be59fe6519a1ba3f06f74aa4520b5dec
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Shader.h">
