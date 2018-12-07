@@ -89,27 +89,15 @@ int main(void)
 	Shader skeletonShader("res/shaders/skeleton.vs", "res/shaders/skeleton.fs");
 	Shader modelShader("res/shaders/vertex.shader", "res/shaders/fragment.shader");
 
-	//Model aModel("res/object/body/pedobear_animated.fbx");
 	//Model aModel("res/object/body/skinning_test_2.fbx");
-	//Model aModel("res/object/body/dance.fbx");
 	//Model aModel("res/object/body/skinning_test.fbx");
 	//Model aModel("res/object/body/skinning_test_3.fbx");
-	//Model aModel("res/object/body/silly_dance.fbx");
-	//Model aModel("res/object/body/Mannequin_Animation.fbx");
-	//Model aModel("res/object/body/turtle_texture.fbx");
-	//Model aModel("res/object/cylinder/leafbone.fbx");
 	//Model aModel("res/object/body/groo.fbx");
-<<<<<<< HEAD
 	Model aModel("res/object/body/Pointing.fbx");
 	//Model aModel("res/object/body/VictoryMonster.fbx");
-	//Model aModel("res/object/body/PutBackShoulder.fbx");
-=======
-	//Model aModel("res/object/body/Pointing.fbx");
-	Model aModel("res/object/body/balei.fbx");
+	//Model aModel("res/object/body/paobu.fbx");
 	//Model aModel("res/object/body/VictoryMonster.fbx");
->>>>>>> 891d5f99be59fe6519a1ba3f06f74aa4520b5dec
 	//Model aModel("res/object/body/get_up.fbx");
-	//Model aModel("res/object/body/sk2_leafbone.fbx");
 	
 	//				lamp position					light color
 	Lamp lamp(glm::vec3(1.2f, 1.0f, 2.0f), glm::vec3(1.0f, 1.0f, 1.0f));
