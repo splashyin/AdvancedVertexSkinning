@@ -127,23 +127,24 @@
   <ItemGroup>
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\vendor\glm\detail\glm.cpp" />
+    <ClCompile Include="src\vendor\imgui\imgui.cpp" />
+    <ClCompile Include="src\vendor\imgui\imgui_demo.cpp" />
+    <ClCompile Include="src\vendor\imgui\imgui_draw.cpp" />
+    <ClCompile Include="src\vendor\imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="src\vendor\imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="src\vendor\imgui\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\object\body\dinasour.fbx" />
+    <None Include="res\object\body\balei.fbx" />
     <None Include="res\object\body\get_up.fbx" />
     <None Include="res\object\body\groo.fbx" />
-    <None Include="res\object\body\Mannequin_Animation.FBX" />
-    <None Include="res\object\body\pedobear_animated.fbx" />
+    <None Include="res\object\body\paobu.fbx" />
     <None Include="res\object\body\Pointing.fbx" />
-    <None Include="res\object\body\push_up.fbx" />
-    <None Include="res\object\body\silly_dance.fbx" />
-    <None Include="res\object\body\sk2_leafbone.fbx" />
+    <None Include="res\object\body\pray.fbx" />
     <None Include="res\object\body\skinning_test.fbx" />
     <None Include="res\object\body\skinning_test_2.fbx" />
     <None Include="res\object\body\skinning_test_3.fbx" />
     <None Include="res\object\body\skinning_test_4.fbx" />
-    <None Include="res\object\body\turtle.fbx" />
-    <None Include="res\object\body\turtle_texture.fbx" />
     <None Include="res\object\body\VictoryMonster.fbx" />
     <None Include="res\object\cylinder\alien.fbx" />
     <None Include="res\object\cylinder\anim_cylinder.fbx" />
@@ -294,6 +295,7 @@
     <None Include="src\vendor\glm\gtx\wrap.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\debug.h" />
     <ClInclude Include="src\Lamp.h" />
     <ClInclude Include="src\Skeleton.h" />
     <ClInclude Include="src\stb_image.h" />
@@ -541,20 +543,20 @@
     <ClInclude Include="src\vendor\glm\vec3.hpp" />
     <ClInclude Include="src\vendor\glm\vec4.hpp" />
     <ClInclude Include="src\vendor\glm\vector_relational.hpp" />
+    <ClInclude Include="src\vendor\imgui\imconfig.h" />
+    <ClInclude Include="src\vendor\imgui\imgui.h" />
+    <ClInclude Include="src\vendor\imgui\imgui_impl_glfw.h" />
+    <ClInclude Include="src\vendor\imgui\imgui_impl_opengl3.h" />
+    <ClInclude Include="src\vendor\imgui\imgui_internal.h" />
+    <ClInclude Include="src\vendor\imgui\imstb_rectpack.h" />
+    <ClInclude Include="src\vendor\imgui\imstb_textedit.h" />
+    <ClInclude Include="src\vendor\imgui\imstb_truetype.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\object\body\Monster.png" />
     <Image Include="res\object\body\Monster_mormal.png" />
     <Image Include="res\object\body\MutantPointing.png" />
     <Image Include="res\object\body\MutantPointing_normal.png" />
-    <Image Include="res\object\body\pedobear.png" />
-    <Image Include="res\object\body\Stormtrooper_D.png" />
-    <Image Include="res\object\body\texture\all_color_final_5.jpg" />
-    <Image Include="res\object\body\texture\body_normal_subD0.jpg" />
-    <Image Include="res\object\body\texture\eye_color.png" />
-    <Image Include="res\object\body\texture\eye_iris_color.png" />
-    <Image Include="res\object\body\texture\eye_iris_normals.png" />
-    <Image Include="res\object\body\texture\eye_iris_spec.png" />
     <Image Include="res\texture\awesomeface.png" />
     <Image Include="res\texture\container.jpg" />
   </ItemGroup>

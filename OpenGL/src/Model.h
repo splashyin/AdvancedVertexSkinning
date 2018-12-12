@@ -7,6 +7,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/quaternion.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
+#define GLM_FORCE_CTOR_INIT
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/dual_quaternion.hpp>
 #include "Shader.h"
@@ -26,18 +27,19 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+#include "debug.h"
 
 using std::string;
 
 unsigned int TextureFromFile(const char *path, const string &directory, bool gamma = false);
-
-void debuggingMatrix(glm::mat4 array);
+glm::mat3x4 convertMatrix(glm::mat4 s);
+glm::quat quatcast(glm::mat4 t);
 void debugVertexBoneData(unsigned int total_vertices, vector<VertexBoneData> Bones);
 void debugSkeletonPose(map<unsigned int, glm::vec3> skeletonPos);
 class Model
 {
 public:
-	
+
 	/*  Model Data */
 	vector<Texture> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
 	vector<Mesh> meshes;
@@ -45,7 +47,7 @@ public:
 	bool gammaCorrection;
 
 	unsigned int total_vertices = 0;
-	
+
 	/*Bone Data*/
 	unsigned int m_NumBones = 0;
 	vector<VertexBoneData> Bones;
@@ -56,12 +58,13 @@ public:
 	vector<BoneInfo> m_BoneInfo;
 	unsigned int NumVertices = 0;
 
+	glm::fdualquat IdentityDQ = glm::fdualquat(glm::quat(1.f, 0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 0.f));
 
 	/*  Functions   */
 	// constructor, expects a filepath to a 3D model.
 	Model(string const &path, bool gamma = false) : gammaCorrection(gamma)
 	{
-		loadModel(path);	
+		loadModel(path);
 	}
 
 	// draws the model, and thus all its meshes
@@ -74,6 +77,7 @@ public:
 	void BoneTransform(float TimeInSeconds, vector<glm::mat4>& Transforms, vector<glm::fdualquat>& dqs) {
 		glm::mat4 Identity = glm::mat4(1.0f);
 
+
 		unsigned int numPosKeys = scene->mAnimations[0]->mChannels[0]->mNumPositionKeys;
 
 		float TicksPerSecond = scene->mAnimations[0]->mTicksPerSecond != 0 ?
@@ -82,20 +86,23 @@ public:
 		float TimeInTicks = TimeInSeconds * TicksPerSecond;
 		float AnimationTime = fmod(TimeInTicks, scene->mAnimations[0]->mChannels[0]->mPositionKeys[numPosKeys - 1].mTime);
 
-		ReadNodeHeirarchy(scene, AnimationTime, scene->mRootNode, Identity, glm::vec3(0.0f, 0.0f, 0.0f));
-		
+		ReadNodeHeirarchy(scene, AnimationTime, scene->mRootNode, Identity, IdentityDQ, glm::vec3(0.0f, 0.0f, 0.0f));
+
 		//debugSkeletonPose(skeleton_pose);
-		
+
 		Transforms.resize(m_NumBones);
 		dqs.resize(m_NumBones);
-		for (unsigned int i = 0; i < m_NumBones; i++) {
+		for (unsigned int i = 0; i < m_NumBones; ++i) {
+			Transforms[i] = glm::mat4(1.0f);
 			Transforms[i] = m_BoneInfo[i].FinalTransformation;
 		}
-		for (unsigned int i = 0; i < dqs.size(); i++) {
-			dqs[i] = glm::normalize(m_BoneInfo[i].FinalTransDQ);
+		for (unsigned int i = 0; i < dqs.size(); ++i) {
+			dqs[i] = IdentityDQ;
+			dqs[i] = m_BoneInfo[i].FinalTransDQ;
+			//debuggingDualQuat(dqs[i]);
 		}
 	}
-	
+
 private:
 	const aiScene* scene;
 	Assimp::Importer importer;
@@ -133,7 +140,7 @@ private:
 				}
 			}
 
-			if (NodeName != "parasiteZombie" && NodeName != "Armature"  && NodeName != "MutantMesh" && NodeName != "Cylinder") {
+			if (NodeName != "Body" &&NodeName != "metarig"&& NodeName != "parasiteZombie" && NodeName != "Armature"  && NodeName != "MutantMesh" && NodeName != "Cylinder") {
 				string BoneName = NodeName;
 				unsigned int BoneIndex = 0;
 
@@ -144,28 +151,28 @@ private:
 				}
 			}
 
-						//only uncomment if we need to load cylinder model
-			/*else {
-				string BoneName(node->mChildren[i]->mName.data);
-				unsigned int BoneIndex = 0;
-				if (NodeName != "parasiteZombie" || NodeName != "Armature") {
-					if (Bone_Mapping.find(BoneName) == Bone_Mapping.end()) {
-						BoneIndex = m_NumBones;
-						m_NumBones++;
-						Bone_Mapping[BoneName] = BoneIndex;
-					}
-				}
-				
-			}*/
+			//only uncomment if we need to load cylinder model
+/*else {
+	string BoneName(node->mChildren[i]->mName.data);
+	unsigned int BoneIndex = 0;
+	if (NodeName != "parasiteZombie" || NodeName != "Armature") {
+		if (Bone_Mapping.find(BoneName) == Bone_Mapping.end()) {
+			BoneIndex = m_NumBones;
+			m_NumBones++;
+			Bone_Mapping[BoneName] = BoneIndex;
+		}
+	}
+
+}*/
 
 		}
-		
+
 		for (unsigned int i = 0; i < node->mNumChildren; i++)
 		{
 			loadBones(node->mChildren[i], scene);
 		}
 
-		
+
 	}
 
 	// processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
@@ -215,7 +222,7 @@ private:
 			vector.y = mesh->mNormals[i].y;
 			vector.z = mesh->mNormals[i].z;
 			vertex.Normal = vector;
-			
+
 			//retreive texture coordinates
 			if (mesh->mTextureCoords[0])
 			{
@@ -229,7 +236,7 @@ private:
 			}
 			vertices.push_back(vertex);
 		}
-		
+
 		//retreive indices
 		for (unsigned int i = 0; i < mesh->mNumFaces; i++)
 		{
@@ -243,7 +250,7 @@ private:
 			aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
 			vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
 		}
-		
+
 		// process materials
 		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 		// 1. diffuse maps
@@ -297,10 +304,10 @@ private:
 		return textures;
 	}
 
-	void loadMeshBones(aiMesh *mesh, vector<VertexBoneData>& VertexBoneData) 
-	{		
-		for (unsigned int i = 0; i < mesh->mNumBones; i++) 
-		{	
+	void loadMeshBones(aiMesh *mesh, vector<VertexBoneData>& VertexBoneData)
+	{
+		for (unsigned int i = 0; i < mesh->mNumBones; i++)
+		{
 			unsigned int BoneIndex = 0;
 			string BoneName(mesh->mBones[i]->mName.data);
 
@@ -313,7 +320,7 @@ private:
 				aiMatrix4x4 tp1 = mesh->mBones[i]->mOffsetMatrix;
 				m_BoneInfo[BoneIndex].offset = glm::transpose(glm::make_mat4(&tp1.a1));
 			}
-		
+
 			for (unsigned int n = 0; n < mesh->mBones[i]->mNumWeights; n++) {
 				unsigned int vid = mesh->mBones[i]->mWeights[n].mVertexId + NumVertices;//absolute index
 				float weight = mesh->mBones[i]->mWeights[n].mWeight;
@@ -323,7 +330,7 @@ private:
 		}
 		NumVertices += mesh->mNumVertices;
 	}
-	
+
 	//get animation from the bone
 	//populate the animation map : animation_map[animation_name][bone_name] -> animation
 	void loadAnimations(const aiScene *scene, string BoneName, map<string, map<string, const aiNodeAnim*>>& animations)
@@ -340,33 +347,30 @@ private:
 		}
 	}
 
-	void ReadNodeHeirarchy(	const aiScene *scene, float AnimationTime, const aiNode* pNode,
-		const glm::mat4& ParentTransform, glm::vec3 startpos)
+	void ReadNodeHeirarchy(const aiScene *scene, float AnimationTime, const aiNode* pNode,
+		const glm::mat4& ParentTransform, const glm::fdualquat& ParentDQ, glm::vec3 startpos)
 	{
 		string NodeName(pNode->mName.data);
 		const aiAnimation* pAnimation = scene->mAnimations[0];
 		glm::mat4 NodeTransformation = glm::mat4(1.0f);
-
+		glm::fdualquat NodeTransformationDQ = IdentityDQ;
 		aiMatrix4x4 tp1 = pNode->mTransformation;
 		NodeTransformation = glm::transpose(glm::make_mat4(&tp1.a1));
-			
+
 		const aiNodeAnim* pNodeAnim = nullptr;
 		pNodeAnim = Animations[pAnimation->mName.data][NodeName];
+
+
 		if (pNodeAnim) {
 
 			//Interpolate rotation and generate rotation transformation matrix
 			aiQuaternion RotationQ;
 			CalcInterpolatedRotaion(RotationQ, AnimationTime, pNodeAnim);
-			glm::fquat rotation = glm::fquat(1.0f, 1.0f, 1.0f, 1.0f);
-			rotation.w = RotationQ.w;
-			rotation.x = RotationQ.x;
-			rotation.y = RotationQ.y;
-			rotation.z = RotationQ.z;
-			glm::mat4 RotationM = glm::toMat4(rotation);
 
-			/*aiMatrix3x3 tp = RotationQ.GetMatrix();
+
+			aiMatrix3x3 tp = RotationQ.GetMatrix();
 			glm::mat4 RotationM = glm::transpose(glm::make_mat3(&tp.a1));
-*/
+
 			//Interpolate translation and generate translation transformation matrix
 			aiVector3D Translation;
 			CalcInterpolatedPosition(Translation, AnimationTime, pNodeAnim);
@@ -374,14 +378,18 @@ private:
 			TranslationM = glm::translate(TranslationM, glm::vec3(Translation.x, Translation.y, Translation.z));
 
 			NodeTransformation = TranslationM * RotationM;
-			
+			NodeTransformationDQ = glm::normalize(glm::fdualquat(glm::normalize(glm::quat_cast(NodeTransformation)), glm::vec3(NodeTransformation[3][0], NodeTransformation[3][1], NodeTransformation[3][2])));
+
+			//NodeTransformationDQ = glm::normalize(glm::fdualquat(glm::quat(RotationQ.x, RotationQ.y, RotationQ.z, RotationQ.w), glm::vec3(Translation.x, Translation.y, Translation.z)));
 		}
 
 		glm::mat4 GlobalTransformation = ParentTransform * NodeTransformation;
 
+		//NodeTransformationDQ = glm::normalize(glm::fdualquat(glm::quat_cast(NodeTransformation), glm::vec3(NodeTransformation[3][0], NodeTransformation[3][1], NodeTransformation[3][2])));
+		glm::fdualquat GlobalDQ = glm::normalize(ParentDQ * NodeTransformationDQ);
 
 		unsigned int ID = 0;
-		
+
 
 		if (Bone_Mapping.find(NodeName) != Bone_Mapping.end()) {
 			startpos.x = GlobalTransformation[3][0];
@@ -393,21 +401,33 @@ private:
 
 		if (Bone_Mapping.find(NodeName) != Bone_Mapping.end()) {
 			unsigned int NodeIndex = Bone_Mapping[NodeName];
-			m_BoneInfo[NodeIndex].FinalTransformation = GlobalTransformation * m_BoneInfo[NodeIndex].offset;	
+			m_BoneInfo[NodeIndex].FinalTransformation = GlobalTransformation * m_BoneInfo[NodeIndex].offset;
+
+
+			
+			//glm::fdualquat offsetDQ = glm::normalize(glm::fdualquat(glm::dualquat_cast(convertMatrix(m_BoneInfo[NodeIndex].offset))));
+			glm::fdualquat offsetDQ = glm::normalize(glm::fdualquat(glm::normalize(glm::quat_cast(m_BoneInfo[NodeIndex].offset)), glm::vec3(m_BoneInfo[NodeIndex].offset[3][0], m_BoneInfo[NodeIndex].offset[3][1], m_BoneInfo[NodeIndex].offset[3][2])));
+
+			m_BoneInfo[NodeIndex].FinalTransDQ = glm::normalize(GlobalDQ * offsetDQ);
+
+			//glm::mat3x4 t = convertMatrix(m_BoneInfo[NodeIndex].FinalTransformation);
+			//m_BoneInfo[NodeIndex].FinalTransDQ = glm::dualquat_cast(t);
 
 			//dual quaternion 
-			glm::fquat FinalQuat = glm::quat_cast(m_BoneInfo[NodeIndex].FinalTransformation);
-			
-			glm::fquat FinalQuatNorm = glm::normalize(FinalQuat);
+			//glm::fquat FinalQuat = glm::quat_cast(m_BoneInfo[NodeIndex].FinalTransformation);
+			//glm::quat finalQuat = quatcast(m_BoneInfo[NodeIndex].FinalTransformation);
 
-			m_BoneInfo[NodeIndex].FinalTransDQ = glm::fdualquat(FinalQuatNorm, glm::vec3(m_BoneInfo[NodeIndex].FinalTransformation[3][0],
-																					 m_BoneInfo[NodeIndex].FinalTransformation[3][1],
-																					 m_BoneInfo[NodeIndex].FinalTransformation[3][2]));
+			/*m_BoneInfo[NodeIndex].FinalTransDQ = glm::fdualquat(glm::normalize(FinalQuat), glm::vec3(m_BoneInfo[NodeIndex].FinalTransformation[3][0],
+																									 m_BoneInfo[NodeIndex].FinalTransformation[3][1],
+																									 m_BoneInfo[NodeIndex].FinalTransformation[3][2]));
+*/
 		}
 		for (unsigned int i = 0; i < pNode->mNumChildren; i++) {
-			ReadNodeHeirarchy(scene, AnimationTime, pNode->mChildren[i], GlobalTransformation, startpos);
+			ReadNodeHeirarchy(scene, AnimationTime, pNode->mChildren[i], GlobalTransformation, GlobalDQ, startpos);
 		}
-	}	
+	}
+
+
 
 
 	void CalcInterpolatedScaling(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim)
@@ -450,7 +470,7 @@ private:
 	}
 
 	void CalcInterpolatedPosition(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim)
-	{	
+	{
 		if (pNodeAnim->mNumPositionKeys == 1) {
 			Out = pNodeAnim->mPositionKeys[0].mValue;
 			return;
@@ -547,25 +567,13 @@ unsigned int TextureFromFile(const char *path, const string &directory, bool gam
 	return textureID;
 }
 
-//Debuggers
-void debuggingMatrix(glm::mat4 array)
-{
-	for (int r = 0; r < 4; ++r)
-	{
-		for (int c = 0; c < 4; ++c)
-		{
-			std::cout << array[r][c] << "  ";
-		}
 
-		std::cout << std::endl;
-	}
-}
 
 void debugVertexBoneData(unsigned int total_vertices, vector<VertexBoneData> Bones)
 {
 	std::ofstream log;
 	log.open("VertexBoneData.txt");
-	
+
 
 	unsigned int i, j;
 	for (i = 0; i < total_vertices; i++)
@@ -583,8 +591,71 @@ void debugVertexBoneData(unsigned int total_vertices, vector<VertexBoneData> Bon
 void debugSkeletonPose(map<unsigned int, glm::vec3> skeletonPos) {
 	for (auto it = skeletonPos.cbegin(); it != skeletonPos.cend(); ++it)
 	{
-		std::cout << it->first << " " << it->second.x << " " << it->second.y << " " << it->second.z <<"\n";
+		std::cout << it->first << " " << it->second.x << " " << it->second.y << " " << it->second.z << "\n";
 	}
 }
 
-	
+glm::quat quatcast(glm::mat4 t) {
+	glm::quat q;
+	float T = 1 + t[0][0] + t[1][1] + t[2][2];
+	float S, X, Y, Z, W;
+
+	if (T > 0.0000001f) {
+		S = glm::sqrt(T) * 2.f;
+		X = (t[1][2] - t[2][1]) / S;
+		Y = (t[2][0] - t[0][2]) / S;
+		Z = (t[0][1] - t[1][0]) / S;
+		W = 0.25f * S;
+	}
+	else
+	{
+		if (t[0][0] > t[1][1] && t[0][0] > t[2][2])
+		{
+			// Column 0 :
+			S = sqrt(1.0f + t[0][0] - t[1][1] - t[2][2]) * 2.f;
+			X = 0.25f * S;
+			Y = (t[0][1] + t[1][0]) / S;
+			Z = (t[2][0] + t[0][2]) / S;
+			W = (t[1][2] - t[2][1]) / S;
+		}
+		else if (t[1][1] > t[2][2])
+		{
+			// Column 1 :
+			S = sqrt(1.0f + t[1][1] - t[0][0] - t[2][2]) * 2.f;
+			X = (t[0][1] + t[1][0]) / S;
+			Y = 0.25f * S;
+			Z = (t[1][2] + t[2][1]) / S;
+			W = (t[2][0] - t[0][2]) / S;
+		}
+		else
+		{   // Column 2 :
+			S = sqrt(1.0f + t[1][1] - t[0][0] - t[1][1]) * 2.f;
+			X = (t[2][0] + t[0][2]) / S;
+			Y = (t[1][2] + t[2][1]) / S;
+			Z = 0.25f * S;
+			W = (t[0][1] - t[1][0]) / S;
+		}
+	}
+	q.w = W; q.x = -X; q.y = -Y; q.z = -Z;
+	return q;
+}
+
+glm::mat3x4 convertMatrix(glm::mat4 s) {
+	glm::mat3x4 t;
+	t[0][0] = s[0][0];
+	t[0][1] = s[0][1];
+	t[0][2] = s[0][2];
+	t[0][3] = s[0][3];
+
+	t[1][0] = s[1][0];
+	t[1][1] = s[1][1];
+	t[1][2] = s[1][2];
+	t[1][3] = s[1][3];
+
+	t[2][0] = s[2][0];
+	t[2][1] = s[2][1];
+	t[2][2] = s[2][2];
+	t[2][3] = s[2][3];
+
+	return t;
+}

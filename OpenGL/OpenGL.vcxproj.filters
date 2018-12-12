@@ -21,6 +21,24 @@
     <ClCompile Include="src\vendor\glm\detail\glm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\vendor\imgui\imgui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vendor\imgui\imgui_demo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vendor\imgui\imgui_draw.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vendor\imgui\imgui_impl_glfw.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vendor\imgui\imgui_impl_opengl3.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vendor\imgui\imgui_widgets.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\vertex.shader" />
@@ -34,18 +52,11 @@
     <None Include="res\object\cylinder\SpaceElemental.fbx" />
     <None Include="res\object\cylinder\alien.fbx" />
     <None Include="res\object\cylinder\Hulk_Animated.fbx" />
-    <None Include="res\object\body\Mannequin_Animation.FBX" />
-    <None Include="res\object\body\turtle.fbx" />
-    <None Include="res\object\body\dinasour.fbx" />
-    <None Include="res\object\body\pedobear_animated.fbx" />
     <None Include="res\object\body\groo.fbx" />
-    <None Include="res\object\body\silly_dance.fbx" />
     <None Include="res\object\body\skinning_test.fbx" />
     <None Include="res\object\body\skinning_test_2.fbx" />
     <None Include="res\object\body\skinning_test_4.fbx" />
     <None Include="res\object\body\skinning_test_3.fbx" />
-    <None Include="res\object\body\push_up.fbx" />
-    <None Include="res\object\body\turtle_texture.fbx" />
     <None Include="res\shaders\lamp.vs" />
     <None Include="res\shaders\lamp.fs" />
     <None Include="res\shaders\skeleton.vs" />
@@ -444,10 +455,12 @@
       <Filter>Header Files</Filter>
     </None>
     <None Include="res\object\body\get_up.fbx" />
-    <None Include="res\object\body\sk2_leafbone.fbx" />
     <None Include="res\object\cylinder\leafbone.fbx" />
     <None Include="res\object\body\Pointing.fbx" />
     <None Include="res\object\body\VictoryMonster.fbx" />
+    <None Include="res\object\body\balei.fbx" />
+    <None Include="res\object\body\pray.fbx" />
+    <None Include="res\object\body\paobu.fbx" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Shader.h">
@@ -1191,36 +1204,39 @@
     <ClInclude Include="src\vendor\glm\simd\vector_relational.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\debug.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vendor\imgui\imconfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vendor\imgui\imgui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vendor\imgui\imgui_impl_glfw.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vendor\imgui\imgui_impl_opengl3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vendor\imgui\imgui_internal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vendor\imgui\imstb_rectpack.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vendor\imgui\imstb_textedit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vendor\imgui\imstb_truetype.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\texture\container.jpg">
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="res\texture\awesomeface.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="res\object\body\texture\body_normal_subD0.jpg">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="res\object\body\texture\all_color_final_5.jpg">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="res\object\body\texture\eye_color.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="res\object\body\texture\eye_iris_normals.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="res\object\body\texture\eye_iris_color.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="res\object\body\texture\eye_iris_spec.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="res\object\body\pedobear.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="res\object\body\Stormtrooper_D.png">
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="res\object\body\Monster.png">

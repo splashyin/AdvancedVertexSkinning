@@ -13,6 +13,10 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/dual_quaternion.hpp>
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
+
 #include <iostream>
 
 
@@ -20,6 +24,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 void wireframeMode(GLFWwindow *window);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 // settings
@@ -31,6 +36,7 @@ Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
+bool toggleObject = true;
 
 vector<glm::mat4> Transforms;
 vector<glm::fdualquat> dualQuaternions;
@@ -39,6 +45,7 @@ vector<glm::mat2x4> DQs;
 float deltaTime = 0.0f;	// Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
 float animationTime = 0.0f;
+
 
 int main(void)
 {
@@ -63,11 +70,11 @@ int main(void)
 	glfwMakeContextCurrent(window);
 	
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-	glfwSetCursorPosCallback(window, mouse_callback);
+	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	glfwSetScrollCallback(window, scroll_callback);
 
 	// tell GLFW to capture our mouse
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	if (glewInit() != GLEW_OK)
 	{
@@ -81,32 +88,47 @@ int main(void)
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_PROGRAM_POINT_SIZE);
 
-	Shader modelShader("res/shaders/vertex.shader", "res/shaders/fragment.shader");
+	//Shader modelShader("res/shaders/vertex.shader", "res/shaders/fragment.shader");
 	Shader lampShader("res/shaders/lamp.vs", "res/shaders/lamp.fs");
 	Shader skeletonShader("res/shaders/skeleton.vs", "res/shaders/skeleton.fs");
+	Shader modelShader("res/shaders/vertex.shader", "res/shaders/fragment.shader");
 
-	//Model aModel("res/object/body/pedobear_animated.fbx");
 	//Model aModel("res/object/body/skinning_test_2.fbx");
 	//Model aModel("res/object/body/skinning_test.fbx");
 	//Model aModel("res/object/body/skinning_test_3.fbx");
-	//Model aModel("res/object/body/silly_dance.fbx");
-	//Model aModel("res/object/body/Mannequin_Animation.fbx");
-	//Model aModel("res/object/body/turtle_texture.fbx");
-	//Model aModel("res/object/cylinder/leafbone.fbx");
 	//Model aModel("res/object/body/groo.fbx");
-	//Model aModel("res/object/body/Pointing.fbx");
-	Model aModel("res/object/body/VictoryMonster.fbx");
+	Model aModel("res/object/body/Pointing.fbx");
+	//Model aModel("res/object/body/VictoryMonster.fbx");
+	//Model aModel("res/object/body/paobu.fbx");
+	//Model aModel("res/object/body/VictoryMonster.fbx");
 	//Model aModel("res/object/body/get_up.fbx");
-	//Model aModel("res/object/body/sk2_leafbone.fbx");
 	
 	//				lamp position					light color
 	Lamp lamp(glm::vec3(1.2f, 1.0f, 2.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 	
+	ImGui::CreateContext();
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	const char* glsl_version = "#version 430";
+	ImGui_ImplOpenGL3_Init(glsl_version);
+	ImGui::StyleColorsDark();
 
+
+	bool lbs = false;
+	bool dqs = false;
+	static float f = 0.0f;
+	
+	bool show_demo_window = false;
+	ImVec4 clear_color = ImVec4(0.098f, 0.231f, 0.298f, 1.00f);
 	float startFrame = glfwGetTime();
+
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
 	{
+
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
 		// per-frame time logic
 		// --------------------
 		float currentFrame = glfwGetTime();
@@ -115,18 +137,19 @@ int main(void)
 
 		animationTime = currentFrame - startFrame;
 
-		//Input...
 		processInput(window);
+		
 		wireframeMode(window);
 
 		//glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		//glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
+		glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//wireframe mode for debugging
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		
 		//activate model shader
 		// render 3D model
@@ -157,7 +180,10 @@ int main(void)
 		modelShader.setVec3("lightPos", lamp.Position);
 		modelShader.setVec3("lightColor", lamp.Color);
 		modelShader.setVec3("viewPos", camera.Position);
-
+		//defult LBS
+		modelShader.setBool("lbsOn", lbs);
+		modelShader.setBool("dqsOn", dqs);
+		modelShader.setFloat("ratio", f);
 		aModel.Draw(modelShader);
 
 		//activate lamp shader
@@ -185,9 +211,39 @@ int main(void)
 		skeletonShader.setMat4("model", skeletom_model);
 		skeleton.Draw(skeletonShader);
 
+		if (show_demo_window)
+			ImGui::ShowDemoWindow(&show_demo_window);
+
+		{
+			
+			ImGui::Begin("Advanced Vertex Skinning");         
+
+			ImGui::Text("By default, we use DQS and LBS at 0.5 ratio");
+
+			ImGui::Checkbox("LBS", &lbs);
+			ImGui::Checkbox("DQS", &dqs);
+
+			ImGui::SliderFloat("Ratio on DQS", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+			ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+
+			ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+
+			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+			ImGui::End();
+		}
+
+
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
+
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
+
 	glfwTerminate();
 	return 0;
 }
@@ -200,7 +256,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 void processInput(GLFWwindow *window) {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
-
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		camera.ProcessKeyboard(FORWARD, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -209,6 +264,10 @@ void processInput(GLFWwindow *window) {
 		camera.ProcessKeyboard(LEFT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camera.ProcessKeyboard(RIGHT, deltaTime);
+
+	
+		
+
 }
 
 void wireframeMode(GLFWwindow *window) {
@@ -221,10 +280,24 @@ void wireframeMode(GLFWwindow *window) {
 	}
 }
 
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+		toggleObject = true;
+		glfwSetCursorPosCallback(window, mouse_callback);
+
+	}
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+		toggleObject = false;
+		glfwSetCursorPosCallback(window, mouse_callback);
+	}
+}
+
 // glfw: whenever the mouse moves, this callback is called
 // -------------------------------------------------------
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
+
 	if (firstMouse)
 	{
 		lastX = xpos;
@@ -238,7 +311,12 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	lastX = xpos;
 	lastY = ypos;
 
-	camera.ProcessMouseMovement(xoffset, yoffset);
+	if (toggleObject)
+	{
+		camera.ProcessMouseMovement(xoffset, yoffset);
+	}
+
+	
 }
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called

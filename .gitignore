@@ -12,6 +12,7 @@
 .mailmap
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
+DualQuatLog.txt
 
 # Build results
 [Dd]ebug/

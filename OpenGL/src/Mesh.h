@@ -64,6 +64,9 @@ struct BoneInfo {
 	{
 		offset = glm::mat4(1.0f);
 		FinalTransformation = glm::mat4(1.0f);
+		FinalTransDQ.real = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+		FinalTransDQ.dual = glm::quat(0.0f, 0.0f, 0.0f, 0.0f);
+
 	}
 };
 

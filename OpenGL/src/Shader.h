@@ -77,16 +77,7 @@ public:
 		glUseProgram(ID);
 	}
 
-	/*void getBoneLocationUniforms(unsigned int index) {
-		const string name = "gBones[" + to_string(index) + "]";
-		GLuint boneTransform = glGetUniformLocation(ID, name.c_str());
-		
-	}
-
-	void SetBoneTransform(unsigned int index, const glm::mat4 &mat)
-	{
-		glUniformMatrix4fv(m_boneLocation[index], 1, GL_FALSE, &mat[0][0]);
-	}*/
+	
 
 	// utility uniform functions
 	void setBool(const std::string &name, bool value) const
