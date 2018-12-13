@@ -97,11 +97,11 @@ int main(void)
 	//Model aModel("res/object/body/skinning_test.fbx");
 	//Model aModel("res/object/body/skinning_test_3.fbx");
 	//Model aModel("res/object/body/groo.fbx");
-	Model aModel("res/object/body/Pointing.fbx");
+	//Model aModel("res/object/body/Pointing.fbx");
 	//Model aModel("res/object/body/VictoryMonster.fbx");
-	//Model aModel("res/object/body/paobu.fbx");
+	//Model aModel("res/object/body/balei.fbx");
 	//Model aModel("res/object/body/VictoryMonster.fbx");
-	//Model aModel("res/object/body/get_up.fbx");
+	Model aModel("res/object/body/get_up.fbx");
 	
 	//				lamp position					light color
 	Lamp lamp(glm::vec3(1.2f, 1.0f, 2.0f), glm::vec3(1.0f, 1.0f, 1.0f));
@@ -217,8 +217,6 @@ int main(void)
 		{
 			
 			ImGui::Begin("Advanced Vertex Skinning");         
-
-			ImGui::Text("By default, we use DQS and LBS at 0.5 ratio");
 
 			ImGui::Checkbox("LBS", &lbs);
 			ImGui::Checkbox("DQS", &dqs);

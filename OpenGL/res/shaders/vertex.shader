@@ -82,11 +82,19 @@ void main() {
 	}
 	else if (dqsOn)
 	{
-		vec4 pos = DQmat * vec4(aPos, 1.0);
-		gl_Position = projection * view * model * pos;
-		FragPos = vec3(model* pos);
+		float len = length(blendDQ[0]);
+		blendDQ /= len;
+
+		vec3 position = aPos.xyz + 2.0*cross(blendDQ[0].xyz, cross(blendDQ[0].xyz, aPos.xyz) + blendDQ[0].w * aPos.xyz);
+		vec3 trans = 2.0*(blendDQ[0].w * blendDQ[1].xyz - blendDQ[1].w * blendDQ[0].xyz + cross(blendDQ[0].xyz, blendDQ[1].xyz));
+		position += trans;
+
+		gl_Position = projection * view * model * vec4(position, 1.0f);
+
+		//vec4 pos = DQmat * vec4(aPos, 1.0);
+		//gl_Position = projection * view * model * pos;
+		FragPos = vec3(model* vec4(position, 1.0f));
 		Normal = mat3(transpose(inverse(DQmat))) * aNormal;
-		
 	}
 	else {
 		mat4 Mix = (1 - ratio) * BoneTransform + ratio * DQmat;
