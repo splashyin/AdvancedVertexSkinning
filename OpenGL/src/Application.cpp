@@ -6,12 +6,12 @@
 #include "Model.h"
 #include "Lamp.h"
 #include "Skeleton.h"
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
+#include <gtc/type_ptr.hpp>
 
 #define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/dual_quaternion.hpp>
+#include <gtx/dual_quaternion.hpp>
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"

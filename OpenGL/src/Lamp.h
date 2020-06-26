@@ -1,6 +1,6 @@
 #pragma once
 #include <GL/glew.h>
-#include <glm/glm.hpp>
+#include <glm.hpp>
 #include "Shader.h"
 
 class Lamp 

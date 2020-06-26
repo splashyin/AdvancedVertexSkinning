@@ -1,43 +1,45 @@
 #pragma once
 #include <GL/glew.h>
-#include <glm\glm.hpp>
+#include <glm.hpp>
 #include "Shader.h"
 #include <vector>
 
-using std::vector;
+
+typedef map< unsigned int, glm::vec3 > vec3_map;
 
 class Skeleton {
 public:
-	vector<glm::vec3> skeleton;
-	vector<unsigned int> indices;
+	std::vector< glm::vec3 > skeleton;
+	std::vector< unsigned int > indices;
 
-	Skeleton(map<unsigned int, glm::vec3> skeleton_map) {
+	Skeleton( vec3_map skeleton_map )
+	{
 		initSkeleton(skeleton_map);
 		setupSkeleton();
 	}
 
 	//render the Skeleton
-	void Draw(Shader shader)
+	void Draw( Shader shader )
 	{
 		shader.use();
-		glBindVertexArray(skeletonVAO);
+		glBindVertexArray( skeletonVAO );
 		//glDrawArrays(GL_POINTS, 0, skeleton.size());
-		glDrawElements(GL_POINTS, indices.size(), GL_UNSIGNED_INT, 0);
+		glDrawElements( GL_POINTS, indices.size(), GL_UNSIGNED_INT, 0 );
 
-		glBindVertexArray(0);
+		glBindVertexArray( 0 );
 	}
 
 private:
 	unsigned int skeletonVAO, VBO, EBO;
 
-	void initSkeleton(map<unsigned int, glm::vec3> skeleton_map)
+	void initSkeleton( vec3_map skeleton_map )
 	{
 		/*skeleton.resize(skeleton_map.size());
 		indices.resize(skeleton_map.size());*/
-		for (auto it = skeleton_map.cbegin(); it != skeleton_map.cend(); ++it)
+		for ( auto it = skeleton_map.cbegin(); it != skeleton_map.cend(); it++ )
 		{
-			indices.push_back(it->first);
-			skeleton.push_back(it->second);
+			indices.push_back( it->first );
+			skeleton.push_back( it->second );
 		}
 	}
 
