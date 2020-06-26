@@ -201,7 +201,7 @@ int main(void)
 		lamp.Draw(lampShader);
 
 		//activate skeleton shader
-		Skeleton skeleton(aModel.skeleton_pose);
+		Skeleton* skeleton = new Skeleton( aModel.skeleton_pose );
 
 		skeletonShader.use();
 		skeletonShader.setMat4("projection", projection);
@@ -209,7 +209,7 @@ int main(void)
 		glm::mat4 skeletom_model(1.0f);
 		skeletom_model = glm::scale(skeletom_model, glm::vec3(0.005f, 0.005f, 0.005f));	// it's a bit too big for our scene, so scale it down
 		skeletonShader.setMat4("model", skeletom_model);
-		skeleton.Draw(skeletonShader);
+		skeleton->Draw(skeletonShader);
 
 		if (show_demo_window)
 			ImGui::ShowDemoWindow(&show_demo_window);
