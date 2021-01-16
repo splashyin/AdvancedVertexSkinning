@@ -10,7 +10,7 @@ Skeleton::Skeleton( const vec3_map& i_skeletonMap )
 }
 
 //render the Skeleton
-void Skeleton::Draw( const Shader& i_shader )
+void Skeleton::Draw( Shader& i_shader )
 {
 	i_shader.use();
 	glBindVertexArray(skeletonVAO);

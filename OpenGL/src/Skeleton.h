@@ -18,7 +18,7 @@ public:
 	~Skeleton() {};
 
 	//render the Skeleton
-	void Draw( const Shader& i_shader );
+	void Draw( Shader& i_shader );
 
 	std::vector< unsigned int > indices;
 	std::vector< glm::vec3 > skeleton;
