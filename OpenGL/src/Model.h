@@ -34,8 +34,7 @@ using std::string;
 unsigned int TextureFromFile(const char *path, const string &directory, bool gamma = false);
 glm::mat3x4 convertMatrix(glm::mat4 s);
 glm::quat quatcast(glm::mat4 t);
-void debugVertexBoneData(unsigned int total_vertices, vector<VertexBoneData> Bones);
-void debugSkeletonPose(map<unsigned int, glm::vec3> skeletonPos);
+
 class Model
 {
 public:
@@ -171,8 +170,6 @@ private:
 		{
 			loadBones(node->mChildren[i], scene);
 		}
-
-
 	}
 
 	// processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
@@ -427,9 +424,6 @@ private:
 		}
 	}
 
-
-
-
 	void CalcInterpolatedScaling(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim)
 	{
 		if (pNodeAnim->mNumScalingKeys == 1) {
@@ -565,34 +559,6 @@ unsigned int TextureFromFile(const char *path, const string &directory, bool gam
 	}
 
 	return textureID;
-}
-
-
-
-void debugVertexBoneData(unsigned int total_vertices, vector<VertexBoneData> Bones)
-{
-	std::ofstream log;
-	log.open("VertexBoneData.txt");
-
-
-	unsigned int i, j;
-	for (i = 0; i < total_vertices; i++)
-	{
-		log << "\nBone[" << Bones[i].BoneIDs[0] << "], weight= " << Bones[i].Weights[0];
-		log << "\nBone[" << Bones[i].BoneIDs[1] << "], weight= " << Bones[i].Weights[1];
-		log << "\nBone[" << Bones[i].BoneIDs[2] << "], weight= " << Bones[i].Weights[2];
-		log << "\nBone[" << Bones[i].BoneIDs[3] << "], weight= " << Bones[i].Weights[3];
-		log << "---------------\n";
-	}
-
-	log.close();
-}
-
-void debugSkeletonPose(map<unsigned int, glm::vec3> skeletonPos) {
-	for (auto it = skeletonPos.cbegin(); it != skeletonPos.cend(); ++it)
-	{
-		std::cout << it->first << " " << it->second.x << " " << it->second.y << " " << it->second.z << "\n";
-	}
 }
 
 glm::quat quatcast(glm::mat4 t) {

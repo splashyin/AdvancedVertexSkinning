@@ -141,8 +141,6 @@ int main(void)
 		
 		wireframeMode(window);
 
-		//glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-		//glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
 		glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -221,7 +219,7 @@ int main(void)
 			ImGui::Checkbox("LBS", &lbs);
 			ImGui::Checkbox("DQS", &dqs);
 
-			ImGui::SliderFloat("Ratio on DQS", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+			ImGui::SliderFloat("Ratio on DQS", &f, 0.0f, 1.0f);     // Edit 1 float using a slider from 0.0f to 1.0f
 			ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
 
 			ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
@@ -229,7 +227,6 @@ int main(void)
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			ImGui::End();
 		}
-
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -247,11 +244,13 @@ int main(void)
 }
 
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+void framebuffer_size_callback(GLFWwindow* window, int width, int height) 
+{
 	glViewport(0, 0, width, height);
 }
 
-void processInput(GLFWwindow *window) {
+void processInput(GLFWwindow *window) 
+{
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -262,15 +261,13 @@ void processInput(GLFWwindow *window) {
 		camera.ProcessKeyboard(LEFT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camera.ProcessKeyboard(RIGHT, deltaTime);
-
-	
-		
-
 }
 
-void wireframeMode(GLFWwindow *window) {
+void wireframeMode(GLFWwindow *window) 
+{
 
-	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
+	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) 
+	{
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 	else {
