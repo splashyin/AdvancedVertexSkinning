@@ -1,91 +1,31 @@
 #pragma once
-#include <GL/glew.h>
 #include <glm.hpp>
 #include "Shader.h"
 
-class Lamp 
+using namespace glm;
+
+class Lamp
 {
 public:
-	glm::vec3 Position;
-	glm::vec3 Color;
 
 	//Constructor
-	Lamp(glm::vec3 positon, glm::vec3 color)
-	{
-		this->Position = positon;
-		this->Color = color;
+	Lamp( const vec3& i_position, const vec3& i_color );
 
-		setupLight();
-	}
+	Lamp( const Lamp& ) = delete;
+	Lamp( Lamp&& ) = delete;
 
-	//render the lamp
-	void Draw(Shader shader) 
-	{
-		shader.use();
+	//Render the lamp
+	void Draw( Shader* i_shader );
 
-		glBindVertexArray(lightVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		glBindVertexArray(0);
-	}
+	vec3 getPosition();
+	vec3 getColor();
 
 private:
-	unsigned int lightVAO, VBO;
+	void setupLight();
 
-	void setupLight()
-	{
-		//cube vertices
-		float vertices[] = {
-		-0.5f, -0.5f, -0.5f,
-		 0.5f, -0.5f, -0.5f,
-		 0.5f,  0.5f, -0.5f,
-		 0.5f,  0.5f, -0.5f,
-		-0.5f,  0.5f, -0.5f,
-		-0.5f, -0.5f, -0.5f,
+	vec3 m_position;
+	vec3 m_color;
 
-		-0.5f, -0.5f,  0.5f,
-		 0.5f, -0.5f,  0.5f,
-		 0.5f,  0.5f,  0.5f,
-		 0.5f,  0.5f,  0.5f,
-		-0.5f,  0.5f,  0.5f,
-		-0.5f, -0.5f,  0.5f,
-
-		-0.5f,  0.5f,  0.5f,
-		-0.5f,  0.5f, -0.5f,
-		-0.5f, -0.5f, -0.5f,
-		-0.5f, -0.5f, -0.5f,
-		-0.5f, -0.5f,  0.5f,
-		-0.5f,  0.5f,  0.5f,
-
-		 0.5f,  0.5f,  0.5f,
-		 0.5f,  0.5f, -0.5f,
-		 0.5f, -0.5f, -0.5f,
-		 0.5f, -0.5f, -0.5f,
-		 0.5f, -0.5f,  0.5f,
-		 0.5f,  0.5f,  0.5f,
-
-		-0.5f, -0.5f, -0.5f,
-		 0.5f, -0.5f, -0.5f,
-		 0.5f, -0.5f,  0.5f,
-		 0.5f, -0.5f,  0.5f,
-		-0.5f, -0.5f,  0.5f,
-		-0.5f, -0.5f, -0.5f,
-
-		-0.5f,  0.5f, -0.5f,
-		 0.5f,  0.5f, -0.5f,
-		 0.5f,  0.5f,  0.5f,
-		 0.5f,  0.5f,  0.5f,
-		-0.5f,  0.5f,  0.5f,
-		-0.5f,  0.5f, -0.5f,
-		};
-		
-		glGenVertexArrays(1, &lightVAO);
-		glBindVertexArray(lightVAO);
-
-		glGenBuffers(1, &VBO);
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-		
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(0);
-	}
+	unsigned int m_lightVAO = 0;
+	unsigned int m_lightVBO = 0;
 };
