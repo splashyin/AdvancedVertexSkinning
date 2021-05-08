@@ -89,7 +89,7 @@ int main(void)
 	glEnable(GL_PROGRAM_POINT_SIZE);
 
 	//Shader modelShader("res/shaders/vertex.shader", "res/shaders/fragment.shader");
-	Shader lampShader("res/shaders/lamp.vs", "res/shaders/lamp.fs");
+	Shader* lampShader = new Shader( "res/shaders/lamp.vs", "res/shaders/lamp.fs" );
 	Shader skeletonShader("res/shaders/skeleton.vs", "res/shaders/skeleton.fs");
 	Shader modelShader("res/shaders/vertex.shader", "res/shaders/fragment.shader");
 
@@ -103,9 +103,14 @@ int main(void)
 	//Model aModel("res/object/body/VictoryMonster.fbx");
 	Model aModel("res/object/body/get_up.fbx");
 	
-	//				lamp position					light color
-	Lamp lamp(glm::vec3(1.2f, 1.0f, 2.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-	
+	//===========================================================
+	// LAMP
+	//===========================================================
+	const glm::vec3 lampPos( 1.2f, 1.0f, 2.0f );
+	const glm::vec3 lampColor( 1.0f, 1.0f, 1.0f );
+
+	Lamp lamp( lampPos, lampColor );
+
 	ImGui::CreateContext();
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	const char* glsl_version = "#version 430";
@@ -175,9 +180,9 @@ int main(void)
 		}
 
 		//set uniforms for model shader
-		modelShader.setVec3("lightPos", lamp.Position);
-		modelShader.setVec3("lightColor", lamp.Color);
-		modelShader.setVec3("viewPos", camera.Position);
+		modelShader.setVec3( "lightPos", lamp.getPosition() );
+		modelShader.setVec3( "lightColor", lamp.getColor() );
+		modelShader.setVec3( "viewPos", camera.Position);
 		//defult LBS
 		modelShader.setBool("lbsOn", lbs);
 		modelShader.setBool("dqsOn", dqs);
@@ -187,16 +192,16 @@ int main(void)
 		//activate lamp shader
 		//render light cube(lamp)
 		//lamp.Position.x = 1.0f + sin(glfwGetTime()) * 2.0f;
-		lampShader.use();
-		lampShader.setMat4("projection", projection);
-		lampShader.setMat4("view", view);
+		lampShader->use();
+		lampShader->setMat4("projection", projection);
+		lampShader->setMat4("view", view);
 		glm::mat4 lamp_cube(1.0f);
 		//lamp_cube = glm::rotate(lamp_cube, (float)glfwGetTime(), glm::vec3(0.0, 1.0, 0.0));
-		lamp_cube = glm::translate(lamp_cube, lamp.Position);
+		lamp_cube = glm::translate(lamp_cube, lamp.getPosition() );
 		lamp_cube = glm::scale(lamp_cube, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
 		//set uniforms for lamp shader
-		lampShader.setMat4("model", lamp_cube);
-		lamp.Draw(lampShader);
+		lampShader->setMat4("model", lamp_cube);
+		lamp.Draw( lampShader );
 
 		//activate skeleton shader
 		Skeleton* skeleton = new Skeleton( aModel.skeleton_pose );
