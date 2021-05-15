@@ -7,10 +7,9 @@
 #include <iostream>
 #include "assimp\postprocess.h"
 
-#define DEBUG_PRINT() 1
+#define DEBUG_PRINT() 0
 
 #define LOG_MATRIX( i_mat ) logMatrix( i_mat )
-
 template< typename T >																
 void logMatrix( T& i_mat44 )														
 {																					
