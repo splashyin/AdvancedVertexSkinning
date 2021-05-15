@@ -27,7 +27,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-#include "debug.h"
+#include "Log.h"
 
 using std::string;
 
@@ -75,8 +75,6 @@ public:
 
 	void BoneTransform(float TimeInSeconds, vector<glm::mat4>& Transforms, vector<glm::fdualquat>& dqs) {
 		glm::mat4 Identity = glm::mat4(1.0f);
-
-
 		unsigned int numPosKeys = scene->mAnimations[0]->mChannels[0]->mNumPositionKeys;
 
 		float TicksPerSecond = scene->mAnimations[0]->mTicksPerSecond != 0 ?
@@ -87,8 +85,6 @@ public:
 
 		ReadNodeHeirarchy(scene, AnimationTime, scene->mRootNode, Identity, IdentityDQ, glm::vec3(0.0f, 0.0f, 0.0f));
 
-		//debugSkeletonPose(skeleton_pose);
-
 		Transforms.resize(m_NumBones);
 		dqs.resize(m_NumBones);
 		for (unsigned int i = 0; i < m_NumBones; ++i) {
@@ -98,7 +94,10 @@ public:
 		for (unsigned int i = 0; i < dqs.size(); ++i) {
 			dqs[i] = IdentityDQ;
 			dqs[i] = m_BoneInfo[i].FinalTransDQ;
-			//debuggingDualQuat(dqs[i]);
+
+			#ifdef DEBUG_PRINT()
+				LOG_DUALQUAT( dqs[i] );
+			#endif
 		}
 	}
 

@@ -305,7 +305,7 @@
     <None Include="src\vendor\glm\gtx\wrap.inl" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\debug.h" />
+    <ClInclude Include="src\Log.h" />
     <ClInclude Include="src\Lamp.h" />
     <ClInclude Include="src\Skeleton.h" />
     <ClInclude Include="src\stb_image.h" />
