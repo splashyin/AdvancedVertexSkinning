@@ -38,9 +38,9 @@ float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
 bool toggleObject = true;
 
-vector<glm::mat4> Transforms;
-vector<glm::fdualquat> dualQuaternions;
-vector<glm::mat2x4> DQs;
+std::vector<glm::mat4> Transforms;
+std::vector<glm::highp_fdualquat> dualQuaternions;
+std::vector<glm::mat2x4> DQs;
 
 float deltaTime = 0.0f;	// Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
@@ -101,7 +101,7 @@ int main(void)
 	//Model aModel("res/object/body/VictoryMonster.fbx");
 	//Model aModel("res/object/body/balei.fbx");
 	//Model aModel("res/object/body/VictoryMonster.fbx");
-	Model aModel("res/object/body/get_up.fbx");
+	Model aModel("res/object/body/get_up.fbx", false);
 	
 	//===========================================================
 	// LAMP

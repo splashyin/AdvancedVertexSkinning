@@ -69,7 +69,12 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -82,6 +87,7 @@
     <Link>
       <AdditionalLibraryDirectories>D:\AdvancedVertexSkinning\Dependencies\ASSIMP\lib;D:\AdvancedVertexSkinning\Dependencies\GLEW\lib\Release\Win32;D:\AdvancedVertexSkinning\Dependencies\GLFW\lib-vc2015;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>opengl32.lib;assimp-vc140-mt.lib;glfw3.lib;glew32s.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ShowProgress>NotSet</ShowProgress>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -95,6 +101,7 @@
     <Link>
       <AdditionalDependencies>opengl32.lib;assimp-vc140-mt.lib;glfw3.lib;glew32s.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>D:\AdvancedVertexSkinning\Dependencies\ASSIMP\lib;D:\AdvancedVertexSkinning\Dependencies\GLEW\lib\Release\Win32;D:\AdvancedVertexSkinning\Dependencies\GLFW\lib-vc2015;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ShowProgress>NotSet</ShowProgress>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -111,7 +118,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>D:\AdvancedVertexSkinning\Dependencies\ASSIMP\lib;D:\AdvancedVertexSkinning\Dependencies\GLEW\lib\Release\Win32;D:\AdvancedVertexSkinning\Dependencies\GLFW\lib-vc2015;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\AdvancedVertexSkinning\Dependencies\ASSIMP\lib;D:\AdvancedVertexSkinning\Dependencies\GLEW\lib\Release\Win32;D:\AdvancedVertexSkinning\Dependencies\GLFW\lib-vc2015;D:\AdvancedVertexSkinning\OpenGL\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>opengl32.lib;assimp-vc140-mt.lib;glfw3.lib;glew32s.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -129,11 +136,13 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>opengl32.lib;assimp-vc140-mt.lib;glfw3.lib;glew32s.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>D:\AdvancedVertexSkinning\Dependencies\ASSIMP\lib;D:\AdvancedVertexSkinning\Dependencies\GLEW\lib\Release\Win32;D:\AdvancedVertexSkinning\Dependencies\GLFW\lib-vc2015;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\AdvancedVertexSkinning\Dependencies\ASSIMP\lib;D:\AdvancedVertexSkinning\Dependencies\GLEW\lib\Release\Win32;D:\AdvancedVertexSkinning\Dependencies\GLFW\lib-vc2015;D:\AdvancedVertexSkinning\OpenGL\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Application.cpp" />
+    <ClCompile Include="src\Mesh.cpp" />
+    <ClCompile Include="src\Model.cpp" />
     <ClCompile Include="src\Skeleton.cpp" />
     <ClCompile Include="src\Lamp.cpp" />
     <ClCompile Include="src\vendor\glm\detail\glm.cpp" />
@@ -172,6 +181,7 @@
     <None Include="res\shaders\skeleton.fs" />
     <None Include="res\shaders\skeleton.vs" />
     <None Include="res\shaders\vertex.shader" />
+    <None Include="src\MeshData.inl" />
     <None Include="src\vendor\glm\detail\func_common.inl" />
     <None Include="src\vendor\glm\detail\func_common_simd.inl" />
     <None Include="src\vendor\glm\detail\func_exponential.inl" />
@@ -307,10 +317,10 @@
   <ItemGroup>
     <ClInclude Include="src\Log.h" />
     <ClInclude Include="src\Lamp.h" />
+    <ClInclude Include="src\Mesh.h" />
     <ClInclude Include="src\Skeleton.h" />
     <ClInclude Include="src\stb_image.h" />
     <ClInclude Include="src\Camera.h" />
-    <ClInclude Include="src\Mesh.h" />
     <ClInclude Include="src\Model.h" />
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\vendor\glm\common.hpp" />
