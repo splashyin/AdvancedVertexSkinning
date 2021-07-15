@@ -1,15 +1,29 @@
 #include "Model.h"
 #include "Log.h"
 
+#include "assimp\Importer.hpp"
+
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+//----------------------------------------------------------------
 
-
-Model::Model( const std::string& path, bool gamma )
-	: gammaCorrection( gamma )
+Model::Model( const std::string& i_path )
 {
-	loadModel( path );
+	// Retrieve the directory path of the filepath
+	m_directory = i_path.substr( 0, i_path.find_last_of( '/' ) );
+
+	// Load model data
+	loadModel( i_path );
+}
+
+//----------------------------------------------------------------
+
+Model::~Model()
+{
+	// Free the heap allocated scene
+	delete m_scene;
 }
 
 //----------------------------------------------------------------
@@ -27,15 +41,15 @@ void Model::Draw( const Shader& i_shader )
 void Model::BoneTransform( const float& i_timeInSeconds, std::vector<glm::mat4>& io_transforms, std::vector<glm::fdualquat>& io_dqs ) 
 {
 	glm::mat4 Identity = glm::mat4( 1.0f );
-	unsigned int numPosKeys = scene->mAnimations[0]->mChannels[0]->mNumPositionKeys;
+	unsigned int numPosKeys = m_scene->mAnimations[0]->mChannels[0]->mNumPositionKeys;
 
-	float TicksPerSecond = scene->mAnimations[0]->mTicksPerSecond != 0 ?
-		scene->mAnimations[0]->mTicksPerSecond : 25.0f;
+	float TicksPerSecond = m_scene->mAnimations[0]->mTicksPerSecond != 0 ?
+		m_scene->mAnimations[0]->mTicksPerSecond : 25.0f;
 
 	float TimeInTicks = i_timeInSeconds * TicksPerSecond;
-	float AnimationTime = fmod( TimeInTicks, scene->mAnimations[0]->mChannels[0]->mPositionKeys[numPosKeys - 1].mTime );
+	float AnimationTime = fmod( TimeInTicks, m_scene->mAnimations[0]->mChannels[0]->mPositionKeys[numPosKeys - 1].mTime );
 
-	ReadNodeHeirarchy( scene, AnimationTime, scene->mRootNode, Identity, IdentityDQ, glm::vec3( 0.0f, 0.0f, 0.0f ) );
+	ReadNodeHeirarchy( AnimationTime, m_scene->mRootNode, Identity, IdentityDQ, glm::vec3( 0.0f, 0.0f, 0.0f ) );
 
 	io_transforms.resize( m_NumBones );
 	io_dqs.resize( m_NumBones );
@@ -61,80 +75,57 @@ void Model::BoneTransform( const float& i_timeInSeconds, std::vector<glm::mat4>&
 
 void Model::loadModel( const std::string& i_path )
 {
-	scene = importer.ReadFile( i_path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace );
-	// check for errors
-	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
+	Assimp::Importer importer;
+
+	const aiScene* scene = importer.ReadFile( i_path, 
+											  aiProcess_Triangulate | 
+											  aiProcess_FlipUVs | 
+											  aiProcess_CalcTangentSpace );
+	// Error checking
+	if ( scene == nullptr 
+		|| scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE
+		|| scene->mRootNode == nullptr )
 	{
 		std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
 		return;
 	}
-	// retrieve the directory path of the filepath
-	directory = i_path.substr( 0, i_path.find_last_of( '/' ) );
 
-	loadBones( scene->mRootNode, scene );
+	// Takes ownership of the loaded scene (heap allocated)
+	m_scene = importer.GetOrphanedScene();
+
+	// Load bone data from Assimp
+	loadBones( m_scene->mRootNode );
+
+	// Load mesh from nodes recursively
+	processNode( m_scene->mRootNode );
+}
+
+//----------------------------------------------------------------
+
+void Model::loadBones( aiNode* i_node )
+{
+	for ( unsigned int i = 0; i < i_node->mNumChildren; ++i )
+	{
+		aiNode* child = i_node->mChildren[i];
+		std::string nodeName = child->mName.data;
+
+		unsigned int boneIndex = 0;
+		if (Bone_Mapping.find( nodeName ) == Bone_Mapping.end())
+		{
+			BoneIndex = m_NumBones;
+			m_NumBones++;
+			Bone_Mapping[nodeName] = boneIndex;
+		}
+
+		loadBones( child );
+	}
+}
+
+//----------------------------------------------------------------
+
+void Model::processNode( aiNode* node )
+{
 	m_BoneInfo.resize( Bone_Mapping.size() );
-	// process ASSIMP's root node recursively
-	processNode( scene->mRootNode, scene );
-}
-
-//----------------------------------------------------------------
-void Model::loadBones( aiNode* node, const aiScene* scene )
-{
-	for (unsigned int i = 0; i < node->mNumChildren; i++)
-	{
-		std::string NodeName( node->mChildren[i]->mName.data );
-		if (NodeName.find( ":" ) != std::string::npos) 
-		{
-			std::string BoneName = NodeName;
-			unsigned int BoneIndex = 0;
-
-			if (Bone_Mapping.find( BoneName ) == Bone_Mapping.end()) 
-			{
-				BoneIndex = m_NumBones;
-				m_NumBones++;
-				Bone_Mapping[BoneName] = BoneIndex;
-			}
-		}
-
-		if (NodeName != "Body" && NodeName != "metarig" && NodeName != "parasiteZombie" && NodeName != "Armature" && NodeName != "MutantMesh" && NodeName != "Cylinder")
-		{
-			std::string BoneName = NodeName;
-			unsigned int BoneIndex = 0;
-
-			if (Bone_Mapping.find( BoneName ) == Bone_Mapping.end())
-			{
-				BoneIndex = m_NumBones;
-				m_NumBones++;
-				Bone_Mapping[BoneName] = BoneIndex;
-			}
-		}
-
-		//only uncomment if we need to load cylinder model
-		/*else {
-			std::string BoneName(node->mChildren[i]->mName.data);
-			unsigned int BoneIndex = 0;
-			if (NodeName != "parasiteZombie" || NodeName != "Armature") {
-				if (Bone_Mapping.find(BoneName) == Bone_Mapping.end()) {
-					BoneIndex = m_NumBones;
-					m_NumBones++;
-					Bone_Mapping[BoneName] = BoneIndex;
-				}
-			}
-
-		}*/
-
-	}
-
-	for (unsigned int i = 0; i < node->mNumChildren; i++)
-	{
-		loadBones( node->mChildren[i], scene );
-	}
-}
-
-//----------------------------------------------------------------
-
-void Model::processNode( aiNode* node, const aiScene* scene )
-{
 	size_t meshCount = node->mNumMeshes;
 	m_meshes.reserve( meshCount );
 
@@ -143,20 +134,20 @@ void Model::processNode( aiNode* node, const aiScene* scene )
 	{
 		// the node object only contains indices to index the actual objects in the scene. 
 		// the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
-		aiMesh* aiMesh_ptr = scene->mMeshes[node->mMeshes[i]];
+		aiMesh* aiMesh_ptr = m_scene->mMeshes[node->mMeshes[i]];
 		total_vertices += aiMesh_ptr->mNumVertices;
-		processMesh( aiMesh_ptr, scene );
+		processMesh( aiMesh_ptr );
 	}
 	// after we've processed all of the meshes (if any) we then recursively process each of the children nodes
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
 	{
-		processNode( node->mChildren[i], scene );
+		processNode( node->mChildren[i] );
 	}
 }
 
 //----------------------------------------------------------------
 
-void Model::processMesh( aiMesh* aiMesh, const aiScene* scene )
+void Model::processMesh( aiMesh* aiMesh )
 {
 	Mesh mesh;
 
@@ -212,14 +203,14 @@ void Model::processMesh( aiMesh* aiMesh, const aiScene* scene )
 
 	if ( aiMesh->mMaterialIndex >= 0)
 	{
-		aiMaterial* material = scene->mMaterials[aiMesh->mMaterialIndex];
+		aiMaterial* material = m_scene->mMaterials[aiMesh->mMaterialIndex];
 
 		// TODO: we are making a copy here! And not using it!!
 		std::vector<Texture> diffuseMaps = loadMaterialTextures( material, aiTextureType_DIFFUSE, "texture_diffuse" );
 	}
 
 	// process materials
-	aiMaterial* material = scene->mMaterials[aiMesh->mMaterialIndex];
+	aiMaterial* material = m_scene->mMaterials[aiMesh->mMaterialIndex];
 	// 1. diffuse maps
 	std::vector<Texture> diffuseMaps = loadMaterialTextures( material, aiTextureType_DIFFUSE, "texture_diffuse" );
 	textures.insert( textures.end(), diffuseMaps.begin(), diffuseMaps.end() );
@@ -266,7 +257,7 @@ std::vector<Texture> Model::loadMaterialTextures( aiMaterial* mat, aiTextureType
 		if (!skip)
 		{   // if texture hasn't been loaded already, load it
 			Texture texture;
-			texture.id = TextureFromFile( str.C_Str(), this->directory );
+			texture.id = TextureFromFile( str.C_Str(), m_directory );
 			texture.type = typeName;
 			texture.path = str.C_Str();
 			textures.push_back( texture );
@@ -301,18 +292,18 @@ void Model::loadMeshBones( aiMesh* i_aiMesh, std::vector<VertexBoneData>& Vertex
 			float weight = i_aiMesh->mBones[i]->mWeights[n].mWeight;
 			VertexBoneData[vid].AddBoneData( BoneIndex, weight );
 		}
-		loadAnimations( scene, BoneName, Animations );
+		loadAnimations( BoneName, Animations );
 	}
 	NumVertices += i_aiMesh->mNumVertices;
 }
 
 //----------------------------------------------------------------
 
-void Model::loadAnimations( const aiScene* scene, std::string BoneName, AnimationMap& o_animations )
+void Model::loadAnimations( const std::string& BoneName, AnimationMap& o_animations )
 {
-	for (unsigned int i = 0; i < scene->mNumAnimations; ++i )
+	for (unsigned int i = 0; i < m_scene->mNumAnimations; ++i )
 	{
-		const aiAnimation* pAnimation = scene->mAnimations[i];
+		const aiAnimation* pAnimation = m_scene->mAnimations[i];
 		std::string animName = pAnimation->mName.data;
 
 		for ( unsigned int j = 0; j < pAnimation->mNumChannels; ++j )
@@ -328,11 +319,11 @@ void Model::loadAnimations( const aiScene* scene, std::string BoneName, Animatio
 
 //----------------------------------------------------------------
 
-void Model::ReadNodeHeirarchy( const aiScene* scene, float AnimationTime, const aiNode* pNode,
+void Model::ReadNodeHeirarchy( float AnimationTime, const aiNode* pNode,
 	const glm::mat4& ParentTransform, const glm::fdualquat& ParentDQ, glm::vec3 startpos )
 {
 	std::string NodeName( pNode->mName.data );
-	const aiAnimation* pAnimation = scene->mAnimations[0];
+	const aiAnimation* pAnimation = m_scene->mAnimations[0];
 	glm::mat4 NodeTransformation = glm::mat4( 1.0f );
 	glm::fdualquat NodeTransformationDQ = IdentityDQ;
 	aiMatrix4x4 tp1 = pNode->mTransformation;
@@ -403,7 +394,7 @@ void Model::ReadNodeHeirarchy( const aiScene* scene, float AnimationTime, const 
 */
 	}
 	for (unsigned int i = 0; i < pNode->mNumChildren; i++) {
-		ReadNodeHeirarchy( scene, AnimationTime, pNode->mChildren[i], GlobalTransformation, GlobalDQ, startpos );
+		ReadNodeHeirarchy( AnimationTime, pNode->mChildren[i], GlobalTransformation, GlobalDQ, startpos );
 	}
 }
 
@@ -526,7 +517,7 @@ unsigned int Model::FindPosition( float AnimationTime, const aiNodeAnim* pNodeAn
 // HELPER FUNCTIONS
 //----------------------------------------------------------------
 
-unsigned int TextureFromFile( const char* path, const std::string& directory, bool gamma )
+unsigned int TextureFromFile( const char* path, const std::string& directory )
 {
 	std::string filename = std::string( path );
 	filename = directory + '/' + filename;
