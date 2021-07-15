@@ -101,7 +101,7 @@ int main(void)
 	//Model aModel("res/object/body/VictoryMonster.fbx");
 	//Model aModel("res/object/body/balei.fbx");
 	//Model aModel("res/object/body/VictoryMonster.fbx");
-	Model aModel("res/object/body/get_up.fbx", false);
+	Model aModel("res/object/body/get_up.fbx");
 	
 	//===========================================================
 	// LAMP

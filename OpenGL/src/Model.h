@@ -24,37 +24,47 @@
 #include "assimp\Importer.hpp"
 #include "assimp\postprocess.h"
 
-unsigned int TextureFromFile(const char *path, const std::string &directory, bool gamma = false);
-glm::mat3x4 convertMatrix(glm::mat4 s);
-glm::quat quatcast(glm::mat4 t);
+unsigned int TextureFromFile( const char* path, const std::string& directory );
+glm::mat3x4 convertMatrix( glm::mat4 s );
+glm::quat quatcast( glm::mat4 t );
 
-typedef std::map< std::string, std::map< std::string, const aiNodeAnim* > > AnimationMap;
+
+typedef std::map< std::string, const aiNodeAnim*  > nodeAnimationMap;
+typedef std::map< std::string, nodeAnimationMap > AnimationMap;
 
 class Model
 {
 public:
 
+	// Ctor
+	Model() = delete;
+	Model( const std::string& i_path );
+
+	// Copy Ctor
+	Model( const Model& i_model ) = delete;
+
+	// Move Ctor
+	Model( Model&& i_model ) = delete;
+
+	// Dtor
+	~Model();
+
 	/*  Model Data */
 	std::vector<Texture> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
-	std::string directory;
-	bool gammaCorrection;
 
 	unsigned int total_vertices = 0;
 
 	/*Bone Data*/
 	unsigned int m_NumBones = 0;
-	std::vector<VertexBoneData> Bones;
-	std::map<std::string, unsigned int> Bone_Mapping;
+	std::vector< VertexBoneData > Bones;
+	std::map< std::string, unsigned int > Bone_Mapping;
 	AnimationMap Animations;
-	std::map<unsigned int, glm::vec3> skeleton_pose;
-	std::map<std::string, unsigned int> Node_Mapping;
-	std::vector<BoneInfo> m_BoneInfo;
+	std::map< unsigned int, glm::vec3 > skeleton_pose;
+	std::map< std::string, unsigned int > Node_Mapping;
+	std::vector< BoneInfo > m_BoneInfo;
 	unsigned int NumVertices = 0;
 
 	glm::fdualquat IdentityDQ = glm::fdualquat(glm::quat(1.f, 0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 0.f));
-
-	// Ctor
-	Model( const std::string& path, bool gamma );
 
 	// Draws the model, and thus all its meshes
 	void Draw( const Shader& i_shader );
@@ -64,21 +74,27 @@ public:
 
 private:
 
-	std::vector< Mesh > m_meshes;
+	// Model has ownership over the loaded scene
+	// The application is now responsible for deleting the scene
+	// The scene data is now heap allocated, so it requires application uses the same heap as Assimp
+	aiScene* m_scene;
 
-	const aiScene* scene;
-	Assimp::Importer importer;
+	// Directory of the scene file
+	std::string m_directory;
+
+	// A number of meshes of the model
+	std::vector< Mesh > m_meshes;
 
 	// loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
 	void loadModel( const std::string& i_path );
 
-	void loadBones( aiNode* node, const aiScene* scene );
+	void loadBones( aiNode* node );
 
 	// processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
-	void processNode( aiNode* node, const aiScene* scene );
+	void processNode( aiNode* node );
 
 	// process a mesh object (does a copy)
-	void processMesh( aiMesh* mesh, const aiScene* scene );
+	void processMesh( aiMesh* mesh );
 
 	// checks all material textures of a given type and loads the textures if they're not loaded yet.
 	// the required info is returned as a Texture struct.
@@ -88,9 +104,9 @@ private:
 
 	//get animation from the bone
 	//populate the animation map : animation_map[animation_name][bone_name] -> animation
-	void loadAnimations( const aiScene* scene, std::string BoneName, AnimationMap& o_animations );
+	void loadAnimations( const std::string& BoneName, AnimationMap& o_animations );
 
-	void ReadNodeHeirarchy( const aiScene* scene, float AnimationTime, const aiNode* pNode,
+	void ReadNodeHeirarchy( float AnimationTime, const aiNode* pNode,
 		const glm::mat4& ParentTransform, const glm::fdualquat& ParentDQ, glm::vec3 startpos );
 
 	void CalcInterpolatedScaling( aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim );
