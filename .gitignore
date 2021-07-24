@@ -336,3 +336,14 @@ ASALocalRun/
 
 # VScode
 .vscode/
+
+# fbx models
+*.fbx
+*.png
+
+# Visual studio files
+*.vcxproj
+*.vcxproj.*
+
+# ini files
+*.ini

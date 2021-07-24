@@ -93,14 +93,6 @@ int main(void)
 	Shader skeletonShader("res/shaders/skeleton.vs", "res/shaders/skeleton.fs");
 	Shader modelShader("res/shaders/vertex.shader", "res/shaders/fragment.shader");
 
-	//Model aModel("res/object/body/skinning_test_2.fbx");
-	//Model aModel("res/object/body/skinning_test.fbx");
-	//Model aModel("res/object/body/skinning_test_3.fbx");
-	//Model aModel("res/object/body/groo.fbx");
-	//Model aModel("res/object/body/Pointing.fbx");
-	//Model aModel("res/object/body/VictoryMonster.fbx");
-	//Model aModel("res/object/body/balei.fbx");
-	//Model aModel("res/object/body/VictoryMonster.fbx");
 	Model aModel("res/object/body/get_up.fbx");
 	
 	//===========================================================
