@@ -40,6 +40,11 @@ void Model::Draw( const Shader& i_shader )
 
 void Model::BoneTransform( const float& i_timeInSeconds, std::vector<glm::mat4>& io_transforms, std::vector<glm::fdualquat>& io_dqs ) 
 {
+	if ( !m_scene->HasAnimations() )
+	{
+		return;
+	}
+
 	glm::mat4 Identity = glm::mat4( 1.0f );
 	unsigned int numPosKeys = m_scene->mAnimations[0]->mChannels[0]->mNumPositionKeys;
 
@@ -112,7 +117,7 @@ void Model::loadBones( aiNode* i_node )
 		unsigned int boneIndex = 0;
 		if (Bone_Mapping.find( nodeName ) == Bone_Mapping.end())
 		{
-			BoneIndex = m_NumBones;
+			boneIndex = m_NumBones;
 			m_NumBones++;
 			Bone_Mapping[nodeName] = boneIndex;
 		}
