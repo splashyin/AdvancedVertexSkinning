@@ -228,14 +228,19 @@ void Model::processMesh( aiMesh* aiMesh )
 	// 4. height maps
 	std::vector<Texture> heightMaps = loadMaterialTextures( material, aiTextureType_AMBIENT, "texture_height" );
 	textures.insert( textures.end(), heightMaps.begin(), heightMaps.end() );
-	//retreive bone information
-	loadMeshBones( aiMesh, Bones );
 	
+	//retreive bone information
+	if ( aiMesh->HasBones() )
+	{
+		loadMeshBones( aiMesh, Bones );
+		mesh.SetBoneInfo( m_BoneInfo );
+		mesh.SetVertexBoneData( Bones );
+	}
+
 	mesh.SetVertices( vertices );
 	mesh.SetIndices( indices );
 	mesh.SetTexture( textures );
-	mesh.SetBoneInfo( m_BoneInfo );
-	mesh.SetVertexBoneData( Bones );
+
 	m_meshes.push_back( mesh );
 }
 

@@ -6,7 +6,10 @@ Skeleton::Skeleton( const vec3_map& i_skeletonMap )
 {
 	m_skeletonMap = i_skeletonMap;
 	initSkeleton();
-	setupSkeleton();
+	if ( skeleton.size() > 0 )
+	{
+		setupSkeleton();
+	}
 }
 
 //render the Skeleton
@@ -22,8 +25,6 @@ void Skeleton::Draw( Shader& i_shader )
 
 void Skeleton::initSkeleton()
 {
-	/*skeleton.resize(skeleton_map.size());
-	indices.resize(skeleton_map.size());*/
 	for (auto it = m_skeletonMap.cbegin(); it != m_skeletonMap.cend(); ++it)
 	{
 		indices.push_back(it->first);

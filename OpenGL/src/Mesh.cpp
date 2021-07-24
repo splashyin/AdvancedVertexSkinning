@@ -115,12 +115,16 @@ void Mesh::InitializeBuffer()
 	// vertex bitangent
 	//glEnableVertexAttribArray(4);
 	//glVertexAttribPointer( 4, 3, GL_FLOAT, GL_FALSE, sizeof( Vertex ), ( void* )offsetof( Vertex, Bitangent ) );
-		
-	glBindBuffer( GL_ARRAY_BUFFER, m_vertexBones_vbo );
-	glBufferData( GL_ARRAY_BUFFER, sizeof( VertexBoneData ) * m_vertexBoneData.size(), &m_vertexBoneData[0], GL_STATIC_DRAW );
-	glEnableVertexAttribArray( 3 );
-	glVertexAttribIPointer( 3, 4, GL_INT, sizeof( VertexBoneData ), ( const GLvoid* )0 );//Int values only
-	glEnableVertexAttribArray( 4 );
-	glVertexAttribPointer( 4, NUM_BONES_PER_VERTEX, GL_FLOAT, GL_FALSE, sizeof( VertexBoneData ), ( void* )offsetof( VertexBoneData, Weights ) );
+	
+	if ( m_vertexBoneData.size() > 0 )
+	{
+		glBindBuffer( GL_ARRAY_BUFFER, m_vertexBones_vbo );
+		glBufferData( GL_ARRAY_BUFFER, sizeof( VertexBoneData ) * m_vertexBoneData.size(), &m_vertexBoneData[0], GL_STATIC_DRAW );
+		glEnableVertexAttribArray( 3 );
+		glVertexAttribIPointer( 3, 4, GL_INT, sizeof( VertexBoneData ), (const GLvoid*)0 );//Int values only
+		glEnableVertexAttribArray( 4 );
+		glVertexAttribPointer( 4, NUM_BONES_PER_VERTEX, GL_FLOAT, GL_FALSE, sizeof( VertexBoneData ), (void*)offsetof( VertexBoneData, Weights ) );
+	}
+
 	glBindVertexArray( 0 );
 }
