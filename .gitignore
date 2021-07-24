@@ -347,3 +347,6 @@ ASALocalRun/
 
 # ini files
 *.ini
+
+# Dependencies
+Dependencies/
