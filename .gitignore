@@ -340,6 +340,7 @@ ASALocalRun/
 # fbx models
 *.fbx
 *.png
+*.jpg
 
 # Visual studio files
 *.vcxproj
@@ -350,3 +351,7 @@ ASALocalRun/
 
 # Dependencies
 Dependencies/
+
+# Release folder
+Release/
+
