@@ -89,7 +89,7 @@ int main(void)
 	glEnable(GL_PROGRAM_POINT_SIZE);
 
 	//Shader modelShader("res/shaders/vertex.shader", "res/shaders/fragment.shader");
-	Shader* lampShader = new Shader( "res/shaders/lamp.vs", "res/shaders/lamp.fs" );
+	Shader lampShader( "res/shaders/lamp.vs", "res/shaders/lamp.fs" );
 	Shader skeletonShader("res/shaders/skeleton.vs", "res/shaders/skeleton.fs");
 	Shader modelShader("res/shaders/vertex.shader", "res/shaders/fragment.shader");
 
@@ -184,15 +184,15 @@ int main(void)
 		//activate lamp shader
 		//render light cube(lamp)
 		//lamp.Position.x = 1.0f + sin(glfwGetTime()) * 2.0f;
-		lampShader->use();
-		lampShader->setMat4("projection", projection);
-		lampShader->setMat4("view", view);
+		lampShader.use();
+		lampShader.setMat4("projection", projection);
+		lampShader.setMat4("view", view);
 		glm::mat4 lamp_cube(1.0f);
 		//lamp_cube = glm::rotate(lamp_cube, (float)glfwGetTime(), glm::vec3(0.0, 1.0, 0.0));
 		lamp_cube = glm::translate(lamp_cube, lamp.getPosition() );
 		lamp_cube = glm::scale(lamp_cube, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
 		//set uniforms for lamp shader
-		lampShader->setMat4("model", lamp_cube);
+		lampShader.setMat4("model", lamp_cube);
 		lamp.Draw( lampShader );
 
 		//activate skeleton shader

@@ -15,7 +15,7 @@ public:
 	Lamp( Lamp&& ) = delete;
 
 	//Render the lamp
-	void Draw( Shader* i_shader );
+	void Draw( Shader& i_shader );
 
 	vec3 getPosition();
 	vec3 getColor();

@@ -2,34 +2,37 @@
 
 using namespace std;
 
-
-void Mesh::SetVertices( const std::vector< Vertex >& i_vertices )
+Mesh::Mesh( unsigned int i_numVertices, unsigned int i_numMaterial )
 {
-	m_vertices.resize( i_vertices.size() );
-	m_vertices = i_vertices;
+	m_vertices.reserve( i_numVertices );
+	m_indices.reserve( i_numVertices );
+	m_textures.reserve( i_numMaterial );
 }
 
-void Mesh::SetIndices( const std::vector< unsigned int >& i_indices )
+void Mesh::SetVertices( const Vertex& i_vertex )
 {
-	m_indices.resize( i_indices.size() );
-	m_indices = i_indices;
+	m_vertices.emplace_back( i_vertex );
+}
+
+void Mesh::SetIndices( const unsigned int& i_index )
+{
+	m_indices.emplace_back( i_index );
 }
 
 void Mesh::SetTexture( const std::vector< Texture >& i_textures )
 {
-	m_textures.resize( i_textures.size() );
 	m_textures = i_textures;
 }
 
 void Mesh::SetBoneInfo( const std::vector< BoneInfo >& i_bones )
 {
-	m_bones.resize( i_bones.size() );
+	m_bones.reserve( i_bones.size() );
 	m_bones = i_bones;
 }
 
 void Mesh::SetVertexBoneData( const std::vector< VertexBoneData >& i_vertexBoneData )
 {
-	m_vertexBoneData.resize( i_vertexBoneData.size() );
+	m_vertexBoneData.reserve( i_vertexBoneData.size() );
 	m_vertexBoneData = i_vertexBoneData;
 }
 
@@ -37,7 +40,7 @@ void Mesh::SetVertexBoneData( const std::vector< VertexBoneData >& i_vertexBoneD
 void Mesh::Draw( const Shader& i_shader)
 {
 	// Set the vertex buffers and its attribute pointers.
-	this->InitializeBuffer();
+	InitializeBuffer();
 
 	// bind appropriate textures
 	unsigned int diffuseNr = 1;

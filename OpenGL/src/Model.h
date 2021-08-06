@@ -94,7 +94,7 @@ private:
 	void processNode( aiNode* node );
 
 	// process a mesh object (does a copy)
-	void processMesh( aiMesh* mesh );
+	Mesh processMesh( aiMesh* mesh );
 
 	// checks all material textures of a given type and loads the textures if they're not loaded yet.
 	// the required info is returned as a Texture struct.

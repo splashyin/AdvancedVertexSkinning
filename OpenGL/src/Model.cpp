@@ -24,6 +24,9 @@ Model::~Model()
 {
 	// Free the heap allocated scene
 	delete m_scene;
+
+	// Delete meshes
+	m_meshes.clear();
 }
 
 //----------------------------------------------------------------
@@ -130,10 +133,8 @@ void Model::loadBones( aiNode* i_node )
 
 void Model::processNode( aiNode* node )
 {
-	m_BoneInfo.resize( Bone_Mapping.size() );
 	size_t meshCount = node->mNumMeshes;
 	m_meshes.reserve( meshCount );
-
 	// process each mesh located at the current node
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
@@ -141,7 +142,7 @@ void Model::processNode( aiNode* node )
 		// the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
 		aiMesh* aiMesh_ptr = m_scene->mMeshes[node->mMeshes[i]];
 		total_vertices += aiMesh_ptr->mNumVertices;
-		processMesh( aiMesh_ptr );
+		m_meshes.emplace_back( processMesh( aiMesh_ptr ) );
 	}
 	// after we've processed all of the meshes (if any) we then recursively process each of the children nodes
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
@@ -152,16 +153,12 @@ void Model::processNode( aiNode* node )
 
 //----------------------------------------------------------------
 
-void Model::processMesh( aiMesh* aiMesh )
+Mesh Model::processMesh( aiMesh* aiMesh )
 {
-	Mesh mesh;
+	// Mesh to fill
+	Mesh mesh( aiMesh->mNumVertices, m_scene->mNumMaterials );
 
-	// data to fill
-	std::vector<Vertex> vertices;
-	std::vector<unsigned int> indices;
 	std::vector<Texture> textures;
-
-	Bones.resize( total_vertices );
 
 	// Walk through each of the mesh's vertices
 	for (unsigned int i = 0; i < aiMesh->mNumVertices; i++)
@@ -193,7 +190,7 @@ void Model::processMesh( aiMesh* aiMesh )
 		{
 			vertex.TexCoords = glm::vec2( 0.0f, 0.0f );
 		}
-		vertices.push_back( vertex );
+		mesh.SetVertices( vertex );
 	}
 
 	//retreive indices
@@ -202,19 +199,12 @@ void Model::processMesh( aiMesh* aiMesh )
 		aiFace face = aiMesh->mFaces[i];
 		for (unsigned int j = 0; j < face.mNumIndices; j++)
 		{
-			indices.push_back( face.mIndices[j] );
+			mesh.SetIndices( face.mIndices[j] );
 		}
 	}
 
-	if ( aiMesh->mMaterialIndex >= 0)
-	{
-		aiMaterial* material = m_scene->mMaterials[aiMesh->mMaterialIndex];
-
-		// TODO: we are making a copy here! And not using it!!
-		std::vector<Texture> diffuseMaps = loadMaterialTextures( material, aiTextureType_DIFFUSE, "texture_diffuse" );
-	}
-
 	// process materials
+	// TODO: refactor texture vector population, avoid copies
 	aiMaterial* material = m_scene->mMaterials[aiMesh->mMaterialIndex];
 	// 1. diffuse maps
 	std::vector<Texture> diffuseMaps = loadMaterialTextures( material, aiTextureType_DIFFUSE, "texture_diffuse" );
@@ -229,6 +219,7 @@ void Model::processMesh( aiMesh* aiMesh )
 	std::vector<Texture> heightMaps = loadMaterialTextures( material, aiTextureType_AMBIENT, "texture_height" );
 	textures.insert( textures.end(), heightMaps.begin(), heightMaps.end() );
 	
+
 	//retreive bone information
 	if ( aiMesh->HasBones() )
 	{
@@ -236,12 +227,9 @@ void Model::processMesh( aiMesh* aiMesh )
 		mesh.SetBoneInfo( m_BoneInfo );
 		mesh.SetVertexBoneData( Bones );
 	}
-
-	mesh.SetVertices( vertices );
-	mesh.SetIndices( indices );
 	mesh.SetTexture( textures );
 
-	m_meshes.push_back( mesh );
+	return mesh;
 }
 
 //----------------------------------------------------------------

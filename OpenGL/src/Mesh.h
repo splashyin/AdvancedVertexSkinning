@@ -13,14 +13,17 @@ class Mesh
 {
 public:
 	// Ctor
-	Mesh() {}
+	Mesh( unsigned int i_numVertices, unsigned int i_numMaterial );
+
+	// Dtor
+	~Mesh() = default;
   
 	// Draw  call - handle rendering the mesh
 	void Draw( const Shader& i_shader );
 
-	void SetVertices( const std::vector< Vertex >& i_vertices );
+	void SetVertices( const Vertex& i_vertex );
 
-	void SetIndices( const std::vector< unsigned int >& i_vertices );
+	void SetIndices( const unsigned int& i_index );
 	
 	void SetTexture( const std::vector< Texture >& i_textures );
 	

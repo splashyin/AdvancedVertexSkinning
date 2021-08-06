@@ -8,7 +8,6 @@
 #define NUM_BONES_PER_VERTEX 4
 #define ZERO_MEM(a) memset(a, 0, sizeof(a))
 #define ARRAY_SIZE_IN_ELEMENTS(a) (sizeof(a)/sizeof(a[0]))
-#define INVALID_MATERIAL 0xFFFFFFFF
 //------------------------------------------------------
 // VERTEX
 //------------------------------------------------------
@@ -52,6 +51,8 @@ struct MeshEntry
 		BaseIndices = 0;
 	}
 
+	~MeshEntry() = default;
+
 	unsigned int Mesh_Index;
 	unsigned int Num_Bones;
 	unsigned int BaseVertex;
@@ -72,6 +73,8 @@ struct BoneInfo
 		FinalTransDQ.dual = glm::quat( 0.0f, 0.0f, 0.0f, 0.0f );
 	}
 
+	~BoneInfo() = default;
+
 	glm::mat4 offset;
 	glm::mat4 FinalTransformation;
 	glm::highp_fdualquat FinalTransDQ;
@@ -87,6 +90,8 @@ struct VertexBoneData
 	{
 		Reset();
 	};
+
+	~VertexBoneData() = default;
 
 	void Reset()
 	{

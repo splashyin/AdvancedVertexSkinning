@@ -76,9 +76,9 @@ void Lamp::setupLight()
 }
 
 
-void Lamp::Draw( Shader* i_shader )
+void Lamp::Draw( Shader& i_shader )
 {
-	i_shader->use();
+	i_shader.use();
 	glBindVertexArray( m_lightVAO );
 	glDrawArrays( GL_TRIANGLES, 0, 36 );
 	glBindVertexArray( 0 );
