@@ -1,7 +1,7 @@
 #include "Model.h"
 #include "Log.h"
 
-#include "assimp\Importer.hpp"
+#include <assimp/Importer.hpp>
 
 
 #define STB_IMAGE_IMPLEMENTATION

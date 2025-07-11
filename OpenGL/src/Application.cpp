@@ -93,7 +93,8 @@ int main(void)
 	Shader skeletonShader("res/shaders/skeleton.vs", "res/shaders/skeleton.fs");
 	Shader modelShader("res/shaders/vertex.shader", "res/shaders/fragment.shader");
 
-	Model aModel("res/object/body/get_up.fbx");
+	// Comment out missing model for now - you'll need to provide a model file
+	// Model aModel("res/object/body/get_up.fbx");
 	
 	//===========================================================
 	// LAMP
@@ -156,6 +157,8 @@ int main(void)
 		glm::mat4 model(1.0f);
 		model = glm::scale(model, glm::vec3(0.005f, 0.005f, 0.005f));	// it's a bit too big for our scene, so scale it down
 		modelShader.setMat4("model", model);
+		// Comment out model rendering until you provide a model file
+		/*
 		aModel.BoneTransform(animationTime, Transforms, dualQuaternions);
 		for (unsigned int i = 0; i < Transforms.size(); ++i)
 		{
@@ -180,6 +183,7 @@ int main(void)
 		modelShader.setBool("dqsOn", dqs);
 		modelShader.setFloat("ratio", f);
 		aModel.Draw(modelShader);
+		*/
 
 		//activate lamp shader
 		//render light cube(lamp)
@@ -196,6 +200,8 @@ int main(void)
 		lamp.Draw( lampShader );
 
 		//activate skeleton shader
+		// Comment out skeleton rendering until you provide a model file
+		/*
 		Skeleton* skeleton = new Skeleton( aModel.skeleton_pose );
 
 		skeletonShader.use();
@@ -205,6 +211,7 @@ int main(void)
 		skeletom_model = glm::scale(skeletom_model, glm::vec3(0.005f, 0.005f, 0.005f));	// it's a bit too big for our scene, so scale it down
 		skeletonShader.setMat4("model", skeletom_model);
 		skeleton->Draw(skeletonShader);
+		*/
 
 		if (show_demo_window)
 			ImGui::ShowDemoWindow(&show_demo_window);

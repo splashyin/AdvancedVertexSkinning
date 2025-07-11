@@ -20,9 +20,9 @@
 #include <map>
 #include <vector>
 
-#include "assimp\scene.h"
-#include "assimp\Importer.hpp"
-#include "assimp\postprocess.h"
+#include <assimp/scene.h>
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
 
 unsigned int TextureFromFile( const char* path, const std::string& directory );
 glm::mat3x4 convertMatrix( glm::mat4 s );

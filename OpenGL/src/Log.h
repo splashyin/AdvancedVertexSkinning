@@ -1,11 +1,11 @@
 #pragma once
 #include <glm.hpp>
-#include <gtc\matrix_transform.hpp>
+#include <gtc/matrix_transform.hpp>
 
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include "assimp\postprocess.h"
+#include <assimp/postprocess.h>
 
 #define DEBUG_PRINT() 0
 
