@@ -3,34 +3,34 @@
 #include "Shader.h"
 
 #include <glm.hpp>
-#include <vector>
 #include <map>
+#include <vector>
 
-typedef std::map< unsigned int, glm::vec3 > vec3_map;
+typedef std::map<unsigned int, glm::vec3> vec3_map;
 
-class Skeleton 
+class Skeleton
 {
-public:
-	// Ctor
-	Skeleton( const vec3_map& i_skeletonMap );
-	
-	// Dtor
-	~Skeleton() {};
+  public:
+    // Ctor
+    Skeleton(const vec3_map& i_skeletonMap);
 
-	//render the Skeleton
-	void Draw( Shader& i_shader );
+    // Dtor
+    ~Skeleton() {};
 
-	std::vector< unsigned int > indices;
-	std::vector< glm::vec3 > skeleton;
+    // render the Skeleton
+    void Draw(Shader& i_shader);
 
-private:
-	void initSkeleton();
+    std::vector<unsigned int> indices;
+    std::vector<glm::vec3> skeleton;
 
-	void setupSkeleton();
+  private:
+    void initSkeleton();
 
-	vec3_map m_skeletonMap;
+    void setupSkeleton();
 
-	unsigned int skeletonVAO;
-	unsigned int VBO;
-	unsigned int EBO;
+    vec3_map m_skeletonMap;
+
+    unsigned int skeletonVAO;
+    unsigned int VBO;
+    unsigned int EBO;
 };
