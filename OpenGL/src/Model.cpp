@@ -1,11 +1,23 @@
 #include "Model.h"
 #include "Log.h"
 
-#include "assimp\Importer.hpp"
+#include <assimp/Importer.hpp>
 
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+
+namespace
+{
+	glm::fdualquat MakeDualQuat(const glm::fquat& rotation, const glm::vec3& translation)
+	{
+		glm::fdualquat dq;
+		dq.real = rotation;
+		glm::fquat translationQuat(0.0f, translation.x, translation.y, translation.z);
+		dq.dual = 0.5f * translationQuat * rotation;
+		return dq;
+	}
+}
 
 //----------------------------------------------------------------
 
@@ -16,6 +28,8 @@ Model::Model( const std::string& i_path )
 
 	// Load model data
 	loadModel( i_path );
+
+	std::cout << "[Model] Bones detected: " << m_NumBones << std::endl;
 }
 
 //----------------------------------------------------------------
@@ -131,16 +145,12 @@ void Model::loadBones( aiNode* i_node )
 void Model::processNode( aiNode* node )
 {
 	m_BoneInfo.resize( Bone_Mapping.size() );
-	size_t meshCount = node->mNumMeshes;
-	m_meshes.reserve( meshCount );
-
 	// process each mesh located at the current node
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
 		// the node object only contains indices to index the actual objects in the scene. 
 		// the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
 		aiMesh* aiMesh_ptr = m_scene->mMeshes[node->mMeshes[i]];
-		total_vertices += aiMesh_ptr->mNumVertices;
 		processMesh( aiMesh_ptr );
 	}
 	// after we've processed all of the meshes (if any) we then recursively process each of the children nodes
@@ -160,8 +170,6 @@ void Model::processMesh( aiMesh* aiMesh )
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
 	std::vector<Texture> textures;
-
-	Bones.resize( total_vertices );
 
 	// Walk through each of the mesh's vertices
 	for (unsigned int i = 0; i < aiMesh->mNumVertices; i++)
@@ -206,14 +214,6 @@ void Model::processMesh( aiMesh* aiMesh )
 		}
 	}
 
-	if ( aiMesh->mMaterialIndex >= 0)
-	{
-		aiMaterial* material = m_scene->mMaterials[aiMesh->mMaterialIndex];
-
-		// TODO: we are making a copy here! And not using it!!
-		std::vector<Texture> diffuseMaps = loadMaterialTextures( material, aiTextureType_DIFFUSE, "texture_diffuse" );
-	}
-
 	// process materials
 	aiMaterial* material = m_scene->mMaterials[aiMesh->mMaterialIndex];
 	// 1. diffuse maps
@@ -229,13 +229,14 @@ void Model::processMesh( aiMesh* aiMesh )
 	std::vector<Texture> heightMaps = loadMaterialTextures( material, aiTextureType_AMBIENT, "texture_height" );
 	textures.insert( textures.end(), heightMaps.begin(), heightMaps.end() );
 	//retreive bone information
-	loadMeshBones( aiMesh, Bones );
+	std::vector<VertexBoneData> bones(aiMesh->mNumVertices);
+	loadMeshBones( aiMesh, bones );
 	
 	mesh.SetVertices( vertices );
 	mesh.SetIndices( indices );
 	mesh.SetTexture( textures );
 	mesh.SetBoneInfo( m_BoneInfo );
-	mesh.SetVertexBoneData( Bones );
+	mesh.SetVertexBoneData( bones );
 	m_meshes.push_back( mesh );
 }
 
@@ -274,7 +275,7 @@ std::vector<Texture> Model::loadMaterialTextures( aiMaterial* mat, aiTextureType
 
 //----------------------------------------------------------------
 
-void Model::loadMeshBones( aiMesh* i_aiMesh, std::vector<VertexBoneData>& VertexBoneData )
+void Model::loadMeshBones( aiMesh* i_aiMesh, std::vector<VertexBoneData>& vertexBoneData )
 {
 	for (unsigned int i = 0; i < i_aiMesh->mNumBones; i++)
 	{
@@ -289,17 +290,37 @@ void Model::loadMeshBones( aiMesh* i_aiMesh, std::vector<VertexBoneData>& Vertex
 
 			aiMatrix4x4 tp1 = i_aiMesh->mBones[i]->mOffsetMatrix;
 			m_BoneInfo[BoneIndex].offset = glm::transpose( glm::make_mat4( &tp1.a1 ) );
+			glm::fquat offsetRot = glm::normalize( glm::quat_cast( m_BoneInfo[BoneIndex].offset ) );
+			glm::vec3 offsetTrans( m_BoneInfo[BoneIndex].offset[3][0], m_BoneInfo[BoneIndex].offset[3][1], m_BoneInfo[BoneIndex].offset[3][2] );
+			m_BoneInfo[BoneIndex].offsetDQ = glm::normalize( MakeDualQuat( offsetRot, offsetTrans ) );
 		}
 
 		for (unsigned int n = 0; n < i_aiMesh->mBones[i]->mNumWeights; n++)
 		{
-			unsigned int vid = i_aiMesh->mBones[i]->mWeights[n].mVertexId + NumVertices;//absolute index
+			unsigned int vid = i_aiMesh->mBones[i]->mWeights[n].mVertexId;
 			float weight = i_aiMesh->mBones[i]->mWeights[n].mWeight;
-			VertexBoneData[vid].AddBoneData( BoneIndex, weight );
+			vertexBoneData[vid].AddBoneData( BoneIndex, weight );
 		}
 		loadAnimations( BoneName, Animations );
 	}
-	NumVertices += i_aiMesh->mNumVertices;
+
+	// Normalize bone weights per vertex to ensure proper blending (especially for DQS).
+	for (VertexBoneData& vertex : vertexBoneData)
+	{
+		float totalWeight = 0.0f;
+		for (unsigned int j = 0; j < NUM_BONES_PER_VERTEX; ++j)
+		{
+			totalWeight += vertex.Weights[j];
+		}
+
+		if (totalWeight > 0.0f)
+		{
+			for (unsigned int j = 0; j < NUM_BONES_PER_VERTEX; ++j)
+			{
+				vertex.Weights[j] /= totalWeight;
+			}
+		}
+	}
 }
 
 //----------------------------------------------------------------
@@ -330,7 +351,6 @@ void Model::ReadNodeHeirarchy( float AnimationTime, const aiNode* pNode,
 	std::string NodeName( pNode->mName.data );
 	const aiAnimation* pAnimation = m_scene->mAnimations[0];
 	glm::mat4 NodeTransformation = glm::mat4( 1.0f );
-	glm::fdualquat NodeTransformationDQ = IdentityDQ;
 	aiMatrix4x4 tp1 = pNode->mTransformation;
 	NodeTransformation = glm::transpose( glm::make_mat4( &tp1.a1 ) );
 
@@ -354,15 +374,13 @@ void Model::ReadNodeHeirarchy( float AnimationTime, const aiNode* pNode,
 		TranslationM = glm::translate( TranslationM, glm::vec3( Translation.x, Translation.y, Translation.z ) );
 
 		NodeTransformation = TranslationM * RotationM;
-		NodeTransformationDQ = glm::normalize( glm::fdualquat( glm::normalize( glm::quat_cast( NodeTransformation ) ), glm::vec3( NodeTransformation[3][0], NodeTransformation[3][1], NodeTransformation[3][2] ) ) );
-
-		//NodeTransformationDQ = glm::normalize(glm::fdualquat(glm::quat(RotationQ.x, RotationQ.y, RotationQ.z, RotationQ.w), glm::vec3(Translation.x, Translation.y, Translation.z)));
 	}
 
 	glm::mat4 GlobalTransformation = ParentTransform * NodeTransformation;
-
-	//NodeTransformationDQ = glm::normalize(glm::fdualquat(glm::quat_cast(NodeTransformation), glm::vec3(NodeTransformation[3][0], NodeTransformation[3][1], NodeTransformation[3][2])));
-	glm::fdualquat GlobalDQ = glm::normalize( ParentDQ * NodeTransformationDQ );
+	glm::fquat nodeRotation = glm::normalize( glm::quat_cast( NodeTransformation ) );
+	glm::vec3 nodeTranslation( NodeTransformation[3][0], NodeTransformation[3][1], NodeTransformation[3][2] );
+	glm::fdualquat NodeDQ = glm::normalize( MakeDualQuat( nodeRotation, nodeTranslation ) );
+	glm::fdualquat GlobalDQ = glm::normalize( ParentDQ * NodeDQ );
 
 	unsigned int ID = 0;
 
@@ -379,24 +397,8 @@ void Model::ReadNodeHeirarchy( float AnimationTime, const aiNode* pNode,
 		unsigned int NodeIndex = Bone_Mapping[NodeName];
 		m_BoneInfo[NodeIndex].FinalTransformation = GlobalTransformation * m_BoneInfo[NodeIndex].offset;
 
-
-
-		//glm::fdualquat offsetDQ = glm::normalize(glm::fdualquat(glm::dualquat_cast(convertMatrix(m_BoneInfo[NodeIndex].offset))));
-		glm::fdualquat offsetDQ = glm::normalize( glm::fdualquat( glm::normalize( glm::quat_cast( m_BoneInfo[NodeIndex].offset ) ), glm::vec3( m_BoneInfo[NodeIndex].offset[3][0], m_BoneInfo[NodeIndex].offset[3][1], m_BoneInfo[NodeIndex].offset[3][2] ) ) );
-
-		m_BoneInfo[NodeIndex].FinalTransDQ = glm::normalize( GlobalDQ * offsetDQ );
-
-		//glm::mat3x4 t = convertMatrix(m_BoneInfo[NodeIndex].FinalTransformation);
-		//m_BoneInfo[NodeIndex].FinalTransDQ = glm::dualquat_cast(t);
-
-		//dual quaternion 
-		//glm::fquat FinalQuat = glm::quat_cast(m_BoneInfo[NodeIndex].FinalTransformation);
-		//glm::quat finalQuat = quatcast(m_BoneInfo[NodeIndex].FinalTransformation);
-
-		/*m_BoneInfo[NodeIndex].FinalTransDQ = glm::fdualquat(glm::normalize(FinalQuat), glm::vec3(m_BoneInfo[NodeIndex].FinalTransformation[3][0],
-																								 m_BoneInfo[NodeIndex].FinalTransformation[3][1],
-																								 m_BoneInfo[NodeIndex].FinalTransformation[3][2]));
-*/
+		glm::fdualquat finalDQ = glm::normalize( GlobalDQ * m_BoneInfo[NodeIndex].offsetDQ );
+		m_BoneInfo[NodeIndex].FinalTransDQ = finalDQ;
 	}
 	for (unsigned int i = 0; i < pNode->mNumChildren; i++) {
 		ReadNodeHeirarchy( AnimationTime, pNode->mChildren[i], GlobalTransformation, GlobalDQ, startpos );

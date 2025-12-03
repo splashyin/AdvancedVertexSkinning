@@ -115,6 +115,20 @@ public:
 			Zoom = 45.0f;
 	}
 
+	// Point the camera toward a target without changing its position
+	void LookAt(const glm::vec3& target)
+	{
+		glm::vec3 direction = target - Position;
+		if (glm::length(direction) < 0.0001f)
+		{
+			return;
+		}
+		direction = glm::normalize(direction);
+		Pitch = glm::degrees(glm::asin(direction.y));
+		Yaw = glm::degrees(glm::atan(direction.z, direction.x));
+		updateCameraVectors();
+	}
+
 private:
 	// Calculates the front vector from the Camera's (updated) Euler Angles
 	void updateCameraVectors()

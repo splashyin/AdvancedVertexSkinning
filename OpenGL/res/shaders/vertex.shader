@@ -1,4 +1,4 @@
-#version 430 core
+#version 330 core
 
 layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec3 aNormal;
@@ -13,8 +13,9 @@ out vec2 TexCoord;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
-uniform mat4 gBones[100];
-uniform mat2x4 dqs[100];
+// Match the current model's bone count (151) while staying under macOS uniform limits.
+uniform mat4 gBones[151];
+uniform mat2x4 dqs[151];
 uniform bool lbsOn;
 uniform bool dqsOn;
 uniform float ratio;
@@ -67,12 +68,17 @@ void main() {
 	if (dot(dq0[0], dq2[0]) < 0.0) dq2 *= -1.0;
 	if (dot(dq0[0], dq3[0]) < 0.0) dq3 *= -1.0;
 
-	mat2x4 blendDQ = dq0 * Weights[0];
-	blendDQ += dq1 * Weights[1];
-	blendDQ += dq2 * Weights[2];
-	blendDQ += dq3 * Weights[3];
+mat2x4 blendDQ = dq0 * Weights[0];
+blendDQ += dq1 * Weights[1];
+blendDQ += dq2 * Weights[2];
+blendDQ += dq3 * Weights[3];
 
-	mat4x4 DQmat = DQtoMat(blendDQ[0], blendDQ[1]);
+float len = length(blendDQ[0]);
+if (len > 0.0) {
+	blendDQ /= len;
+}
+
+mat4x4 DQmat = DQtoMat(blendDQ[0], blendDQ[1]);
 
 	if (lbsOn) {
 		vec4 pos = BoneTransform * vec4(aPos, 1.0);
@@ -82,18 +88,9 @@ void main() {
 	}
 	else if (dqsOn)
 	{
-		float len = length(blendDQ[0]);
-		blendDQ /= len;
-
-		vec3 position = aPos.xyz + 2.0*cross(blendDQ[0].xyz, cross(blendDQ[0].xyz, aPos.xyz) + blendDQ[0].w * aPos.xyz);
-		vec3 trans = 2.0*(blendDQ[0].w * blendDQ[1].xyz - blendDQ[1].w * blendDQ[0].xyz + cross(blendDQ[0].xyz, blendDQ[1].xyz));
-		position += trans;
-
-		gl_Position = projection * view * model * vec4(position, 1.0f);
-
-		//vec4 pos = DQmat * vec4(aPos, 1.0);
-		//gl_Position = projection * view * model * pos;
-		FragPos = vec3(model* vec4(position, 1.0f));
+		vec4 pos = DQmat * vec4(aPos, 1.0);
+		gl_Position = projection * view * model * pos;
+		FragPos = vec3(model * pos);
 		Normal = mat3(transpose(inverse(DQmat))) * aNormal;
 	}
 	else {
