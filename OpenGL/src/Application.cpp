@@ -50,12 +50,16 @@ float animationTime = 0.0f;
 int main(void)
 {
 	GLFWwindow* window;
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	/* Initialize the library */
 	if (!glfwInit())
 		return -1;
+
+	// Request an OpenGL 3.2 core profile context, which is the maximum
+	// core profile supported on macOS. This matches GLSL #version 150.
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	 
 	/* Create a windowed mode window and its OpenGL context */
 	window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Master 2018", NULL, NULL);
@@ -93,8 +97,8 @@ int main(void)
 	Shader skeletonShader("res/shaders/skeleton.vs", "res/shaders/skeleton.fs");
 	Shader modelShader("res/shaders/vertex.shader", "res/shaders/fragment.shader");
 
-	// Comment out missing model for now - you'll need to provide a model file
-	// Model aModel("res/object/body/get_up.fbx");
+	// Load skinned model (FBX) from the resources directory.
+	Model aModel("res/object/body/get_up.fbx");
 	
 	//===========================================================
 	// LAMP
@@ -106,7 +110,9 @@ int main(void)
 
 	ImGui::CreateContext();
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
-	const char* glsl_version = "#version 430";
+	// Match ImGui's shaders to a GLSL version supported by our context.
+	// With an OpenGL 3.2+ core profile, GLSL 330 is available.
+	const char* glsl_version = "#version 330";
 	ImGui_ImplOpenGL3_Init(glsl_version);
 	ImGui::StyleColorsDark();
 
@@ -157,8 +163,7 @@ int main(void)
 		glm::mat4 model(1.0f);
 		model = glm::scale(model, glm::vec3(0.005f, 0.005f, 0.005f));	// it's a bit too big for our scene, so scale it down
 		modelShader.setMat4("model", model);
-		// Comment out model rendering until you provide a model file
-		/*
+		// Skinning + model rendering
 		aModel.BoneTransform(animationTime, Transforms, dualQuaternions);
 		for (unsigned int i = 0; i < Transforms.size(); ++i)
 		{
@@ -183,7 +188,6 @@ int main(void)
 		modelShader.setBool("dqsOn", dqs);
 		modelShader.setFloat("ratio", f);
 		aModel.Draw(modelShader);
-		*/
 
 		//activate lamp shader
 		//render light cube(lamp)
@@ -199,9 +203,7 @@ int main(void)
 		lampShader->setMat4("model", lamp_cube);
 		lamp.Draw( lampShader );
 
-		//activate skeleton shader
-		// Comment out skeleton rendering until you provide a model file
-		/*
+		//activate skeleton shader (visualize skeleton of the skinned model)
 		Skeleton* skeleton = new Skeleton( aModel.skeleton_pose );
 
 		skeletonShader.use();
@@ -211,7 +213,6 @@ int main(void)
 		skeletom_model = glm::scale(skeletom_model, glm::vec3(0.005f, 0.005f, 0.005f));	// it's a bit too big for our scene, so scale it down
 		skeletonShader.setMat4("model", skeletom_model);
 		skeleton->Draw(skeletonShader);
-		*/
 
 		if (show_demo_window)
 			ImGui::ShowDemoWindow(&show_demo_window);
@@ -257,6 +258,8 @@ void processInput(GLFWwindow *window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
+	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
+		camera.LookAt(glm::vec3(0.0f));
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		camera.ProcessKeyboard(FORWARD, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)

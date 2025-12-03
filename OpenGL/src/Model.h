@@ -52,17 +52,13 @@ public:
 	/*  Model Data */
 	std::vector<Texture> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
 
-	unsigned int total_vertices = 0;
-
 	/*Bone Data*/
 	unsigned int m_NumBones = 0;
-	std::vector< VertexBoneData > Bones;
 	std::map< std::string, unsigned int > Bone_Mapping;
 	AnimationMap Animations;
 	std::map< unsigned int, glm::vec3 > skeleton_pose;
 	std::map< std::string, unsigned int > Node_Mapping;
 	std::vector< BoneInfo > m_BoneInfo;
-	unsigned int NumVertices = 0;
 
 	glm::fdualquat IdentityDQ = glm::fdualquat(glm::quat(1.f, 0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 0.f));
 
@@ -100,7 +96,7 @@ private:
 	// the required info is returned as a Texture struct.
 	std::vector<Texture> loadMaterialTextures( aiMaterial* mat, aiTextureType type, const std::string& typeName );
 
-	void loadMeshBones( aiMesh* mesh, std::vector<VertexBoneData>& VertexBoneData );
+	void loadMeshBones( aiMesh* mesh, std::vector<VertexBoneData>& vertexBoneData );
 
 	//get animation from the bone
 	//populate the animation map : animation_map[animation_name][bone_name] -> animation
