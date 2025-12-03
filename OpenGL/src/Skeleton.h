@@ -8,28 +8,29 @@
 
 typedef std::map<unsigned int, glm::vec3> vec3_map;
 
-class Skeleton {
-public:
-  // Ctor
-  Skeleton(const vec3_map &i_skeletonMap);
+class Skeleton
+{
+  public:
+    // Ctor
+    Skeleton(const vec3_map& i_skeletonMap);
 
-  // Dtor
-  ~Skeleton() {};
+    // Dtor
+    ~Skeleton() {};
 
-  // render the Skeleton
-  void Draw(Shader &i_shader);
+    // render the Skeleton
+    void Draw(Shader& i_shader);
 
-  std::vector<unsigned int> indices;
-  std::vector<glm::vec3> skeleton;
+    std::vector<unsigned int> indices;
+    std::vector<glm::vec3> skeleton;
 
-private:
-  void initSkeleton();
+  private:
+    void initSkeleton();
 
-  void setupSkeleton();
+    void setupSkeleton();
 
-  vec3_map m_skeletonMap;
+    vec3_map m_skeletonMap;
 
-  unsigned int skeletonVAO;
-  unsigned int VBO;
-  unsigned int EBO;
+    unsigned int skeletonVAO;
+    unsigned int VBO;
+    unsigned int EBO;
 };
