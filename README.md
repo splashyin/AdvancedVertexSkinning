@@ -37,7 +37,7 @@ This implementation demonstrates the improved vertex skinning algorithm that com
 - **Real-time Animation**: Observe skinning effects during animation
 
 ### 🛠 **Technical Features**
-- **Modern OpenGL 4.3**: Core profile with custom vertex shaders
+- **OpenGL 3.2**: Core profile with custom vertex shaders (macOS compatible)
 - **Cross-platform**: CMake build system for Windows, Linux, and macOS
 - **3D Model Loading**: Assimp integration for FBX model support
 - **Real-time Performance**: Optimized for interactive frame rates
@@ -77,7 +77,7 @@ The vertex shader implements three approaches:
 
 ## Dependencies
 
-- **OpenGL 4.3+**: Core graphics API
+- **OpenGL 3.2+**: Core graphics API (macOS compatible)
 - **GLFW**: Window management and input handling
 - **GLEW**: OpenGL extension loading
 - **Assimp**: 3D model loading and processing
@@ -88,17 +88,37 @@ The vertex shader implements three approaches:
 
 ### Prerequisites
 
-**Windows:**
-```bash
-# Using vcpkg
-vcpkg install glfw3 glew assimp
+This project uses CMake for cross-platform building and requires the following dependencies:
 
-# Or install manually and update CMakeLists.txt paths
+**macOS:**
+```bash
+# Using Homebrew
+brew install cmake glfw glew assimp
+
+# Verify installations
+brew list glfw glew assimp
 ```
 
-**Linux:**
+**Linux (Ubuntu/Debian):**
 ```bash
-sudo apt-get install libglfw3-dev libglew-dev libassimp-dev
+# Install dependencies
+sudo apt-get update
+sudo apt-get install cmake libglfw3-dev libglew-dev libassimp-dev
+
+# Additional packages for OpenGL
+sudo apt-get install libgl1-mesa-dev libglu1-mesa-dev
+```
+
+**Windows:**
+```bash
+# Using vcpkg (recommended)
+vcpkg install glfw3 glew assimp
+
+# Tell CMake where to find vcpkg packages
+cmake -DCMAKE_TOOLCHAIN_FILE=[path to vcpkg]/scripts/buildsystems/vcpkg.cmake ..
+
+# Or install manually to dependencies/ or libs/ directory
+# CMake will automatically search these locations
 ```
 
 ### Build Instructions
@@ -112,16 +132,63 @@ cd AdvancedVertexSkinning
 mkdir build
 cd build
 
-# Generate build files
+# Generate build files (CMake will automatically find dependencies)
 cmake ..
 
 # Build the project
-make                    # Linux
-# or
 cmake --build .         # Cross-platform
 
+# Or use platform-specific build tools
+make                    # macOS/Linux with Make
+# or
+msbuild AdvancedVertexSkinning.sln  # Windows with Visual Studio
+
 # Run the application
-./AdvancedVertexSkinning
+./AdvancedVertexSkinning           # macOS/Linux
+# or
+.\Debug\AdvancedVertexSkinning.exe # Windows
+```
+
+### CMake Features
+
+The CMake build system includes:
+- **Automatic dependency detection**: Searches standard installation paths for GLFW, GLEW, and Assimp
+- **Cross-platform support**: Works on Windows, macOS, and Linux
+- **Flexible library paths**: Supports Homebrew (macOS), vcpkg (Windows), and system libraries (Linux)
+- **Automatic resource copying**: Shader files are automatically copied to the build directory
+- **Resource directory setup**: Creates necessary directories for 3D models
+
+### Troubleshooting
+
+If CMake cannot find dependencies:
+
+**macOS:**
+```bash
+# Ensure Homebrew packages are linked
+brew link glfw glew assimp
+
+# Check installation paths
+brew --prefix glfw
+brew --prefix glew
+brew --prefix assimp
+```
+
+**Linux:**
+```bash
+# Verify package installation
+dpkg -l | grep -E "glfw|glew|assimp"
+
+# Check library paths
+ldconfig -p | grep -E "glfw|glew|assimp"
+```
+
+**Windows:**
+```bash
+# Verify vcpkg installation
+vcpkg list
+
+# Or manually specify library paths in CMake
+cmake -DGLFW_INCLUDE_DIR=path/to/include -DGLFW_LIBRARY=path/to/lib ..
 ```
 
 ## Usage
