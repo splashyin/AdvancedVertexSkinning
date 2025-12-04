@@ -5,6 +5,8 @@
 #include <gtx/quaternion.hpp>
 #include <gtx/dual_quaternion.hpp>
 
+#include <string>
+
 #define NUM_BONES_PER_VERTEX 4
 #define ZERO_MEM(a) memset(a, 0, sizeof(a))
 #define ARRAY_SIZE_IN_ELEMENTS(a) (sizeof(a)/sizeof(a[0]))

@@ -96,7 +96,7 @@ int main(void)
     Shader modelShader("res/shaders/vertex.shader", "res/shaders/fragment.shader");
 
     // Load skinned model (FBX) from the resources directory.
-    Model aModel("res/object/body/get_up.fbx");
+    Model aModel("../res/asset/test/get_up.fbx");
 
     //===========================================================
     // LAMP
