@@ -113,37 +113,37 @@ if(NOT assimp_FOUND)
 endif()
 
 # Include directories
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/src)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/src/vendor)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/src/vendor/glm)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/src/vendor/imgui)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/vendor)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/vendor/glm)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/vendor/imgui)
 
 # Source files
 set(SOURCES
-    OpenGL/src/Application.cpp
-    OpenGL/src/Lamp.cpp
-    OpenGL/src/Mesh.cpp
-    OpenGL/src/Model.cpp
-    OpenGL/src/Skeleton.cpp
-    OpenGL/src/vendor/imgui/imgui.cpp
-    OpenGL/src/vendor/imgui/imgui_demo.cpp
-    OpenGL/src/vendor/imgui/imgui_draw.cpp
-    OpenGL/src/vendor/imgui/imgui_impl_glfw.cpp
-    OpenGL/src/vendor/imgui/imgui_impl_opengl3.cpp
-    OpenGL/src/vendor/imgui/imgui_widgets.cpp
-    OpenGL/src/vendor/glm/detail/glm.cpp
+    src/Application.cpp
+    src/Lamp.cpp
+    src/Mesh.cpp
+    src/Model.cpp
+    src/Skeleton.cpp
+    src/vendor/imgui/imgui.cpp
+    src/vendor/imgui/imgui_demo.cpp
+    src/vendor/imgui/imgui_draw.cpp
+    src/vendor/imgui/imgui_impl_glfw.cpp
+    src/vendor/imgui/imgui_impl_opengl3.cpp
+    src/vendor/imgui/imgui_widgets.cpp
+    src/vendor/glm/detail/glm.cpp
 )
 
 # Header files
 set(HEADERS
-    OpenGL/src/Camera.h
-    OpenGL/src/Lamp.h
-    OpenGL/src/Log.h
-    OpenGL/src/Mesh.h
-    OpenGL/src/Model.h
-    OpenGL/src/Shader.h
-    OpenGL/src/Skeleton.h
-    OpenGL/src/stb_image.h
+    src/Camera.h
+    src/Lamp.h
+    src/Log.h
+    src/Mesh.h
+    src/Model.h
+    src/Shader.h
+    src/Skeleton.h
+    src/stb_image.h
 )
 
 # Create executable
@@ -183,14 +183,14 @@ if(WIN32)
 endif()
 
 # Copy shader files to build directory maintaining directory structure
-file(GLOB SHADER_FILES "OpenGL/res/shaders/*")
+file(GLOB SHADER_FILES "res/shaders/*")
 foreach(SHADER ${SHADER_FILES})
     get_filename_component(SHADER_NAME ${SHADER} NAME)
     configure_file(${SHADER} ${CMAKE_BINARY_DIR}/res/shaders/${SHADER_NAME} COPYONLY)
 endforeach()
 
 # Create res/object directory structure (for model files)
-file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/res/object/body)
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/res/asset/test)
 
 # Set working directory for shaders
 set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
