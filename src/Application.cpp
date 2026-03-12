@@ -37,10 +37,6 @@ float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
 bool toggleObject = true;
 
-std::vector<glm::mat4> Transforms;
-std::vector<glm::highp_fdualquat> dualQuaternions;
-std::vector<glm::mat2x4> DQs;
-
 float deltaTime = 0.0f; // Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
 float animationTime = 0.0f;
@@ -97,6 +93,7 @@ int main(void)
 
     // Load skinned model (FBX) from the resources directory.
     Model aModel("../res/asset/test/get_up.fbx");
+    const unsigned int numBones = aModel.getNumBones();
 
     //===========================================================
     // LAMP
@@ -121,6 +118,9 @@ int main(void)
     bool show_demo_window = false;
     ImVec4 clear_color = ImVec4(0.098f, 0.231f, 0.298f, 1.00f);
     float startFrame = glfwGetTime();
+
+    std::vector<glm::mat2x4> DQs;
+    DQs.resize(numBones, glm::mat2x4(1.0f));
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -167,8 +167,6 @@ int main(void)
         // Skinning + model rendering
         aModel.transform(animationTime);
 
-        unsigned int numBones = aModel.getNumBones();
-
         for (unsigned int i = 0; i < numBones; ++i)
         {
             const std::string name = "gBones[" + std::to_string(i) + "]";
@@ -177,7 +175,6 @@ int main(void)
                                glm::value_ptr(aModel.getBoneTransforms()[i]));
         }
 
-        DQs.resize(numBones);
         for (unsigned int i = 0; i < numBones; ++i)
         {
             DQs[i] = glm::mat2x4_cast(aModel.getDualQuaternions()[i]);

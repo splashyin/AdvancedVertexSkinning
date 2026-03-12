@@ -93,17 +93,17 @@ class Model : public IModel
 
     void loadBones(aiNode* node);
 
-    inline unsigned int getNumBones() const
+    inline const unsigned int getNumBones() const
     {
         return m_numBones;
     }
 
-    inline std::vector<glm::mat4>& getBoneTransforms()
+    inline const std::vector<glm::mat4>& getBoneTransforms() const
     {
         return m_boneTransforms;
     }
 
-    inline std::vector<glm::highp_fdualquat>& getDualQuaternions()
+    inline const std::vector<glm::highp_fdualquat>& getDualQuaternions() const
     {
         return m_dqs;
     }

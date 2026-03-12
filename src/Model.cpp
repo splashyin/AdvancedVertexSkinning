@@ -30,8 +30,8 @@ Model::Model(const std::string& i_path)
 
     std::cout << "[Model] Bones detected: " << m_numBones << std::endl;
 
-    m_boneTransforms.resize(m_numBones);
-    m_dqs.resize(m_numBones);
+    m_boneTransforms.resize(m_numBones, glm::mat4(1.0f));
+    m_dqs.resize(m_numBones, IdentityDQ);
 }
 
 //----------------------------------------------------------------
@@ -77,13 +77,11 @@ void Model::transform(const float& i_timeInSeconds)
 
     for (unsigned int i = 0; i < m_numBones; ++i)
     {
-        m_boneTransforms[i] = glm::mat4(1.0f);
         m_boneTransforms[i] = m_BoneInfo[i].FinalTransformation;
     }
 
     for (unsigned int i = 0; i < m_numBones; ++i)
     {
-        m_dqs[i] = IdentityDQ;
         m_dqs[i] = m_BoneInfo[i].FinalTransDQ;
 
 #ifdef DEBUG_PRINT()
