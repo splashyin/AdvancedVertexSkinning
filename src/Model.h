@@ -8,6 +8,7 @@
 #include <gtc/type_ptr.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #define GLM_FORCE_CTOR_INIT
+#include "IModel.h"
 #include "Mesh.h"
 #include "Shader.h"
 #include <gtx/dual_quaternion.hpp>
@@ -31,7 +32,7 @@ glm::quat quatcast(glm::mat4 t);
 typedef std::map<std::string, const aiNodeAnim*> nodeAnimationMap;
 typedef std::map<std::string, nodeAnimationMap> AnimationMap;
 
-class Model
+class Model : public IModel
 {
   public:
     // Ctor
@@ -52,7 +53,8 @@ class Model
                                           // make sure textures aren't loaded more than once.
 
     /*Bone Data*/
-    unsigned int m_NumBones = 0;
+    unsigned int m_numBones = 0;
+
     std::map<std::string, unsigned int> Bone_Mapping;
     AnimationMap Animations;
     std::map<unsigned int, glm::vec3> skeleton_pose;
@@ -62,11 +64,14 @@ class Model
     glm::fdualquat IdentityDQ =
         glm::fdualquat(glm::quat(1.f, 0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 0.f));
 
-    // Draws the model, and thus all its meshes
-    void Draw(const Shader& i_shader);
+    // Override!
+    virtual void load(const std::string& i_path) override;
 
-    void BoneTransform(const float& i_timeInSeconds, std::vector<glm::mat4>& i_transforms,
-                       std::vector<glm::fdualquat>& io_dqs);
+    // Override!
+    virtual void transform(const float& i_timeInSeconds) override;
+
+    // Override!
+    virtual void draw(const Shader& i_shader) override;
 
   private:
     // Model has ownership over the loaded scene
@@ -80,11 +85,28 @@ class Model
     // A number of meshes of the model
     std::vector<Mesh> m_meshes;
 
-    // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in
-    // the meshes vector.
-    void loadModel(const std::string& i_path);
+    // A vector of bone transforms
+    std::vector<glm::mat4> m_boneTransforms;
+
+    // A vector of dual quaternions
+    std::vector<glm::highp_fdualquat> m_dqs;
 
     void loadBones(aiNode* node);
+
+    inline unsigned int getNumBones() const
+    {
+        return m_numBones;
+    }
+
+    inline std::vector<glm::mat4>& getBoneTransforms()
+    {
+        return m_boneTransforms;
+    }
+
+    inline std::vector<glm::highp_fdualquat>& getDualQuaternions()
+    {
+        return m_dqs;
+    }
 
     // processes a node in a recursive fashion. Processes each individual mesh located at the node
     // and repeats this process on its children nodes (if any).
