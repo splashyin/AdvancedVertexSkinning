@@ -26,9 +26,12 @@ Model::Model(const std::string& i_path)
     m_directory = i_path.substr(0, i_path.find_last_of('/'));
 
     // Load model data
-    loadModel(i_path);
+    load(i_path);
 
-    std::cout << "[Model] Bones detected: " << m_NumBones << std::endl;
+    std::cout << "[Model] Bones detected: " << m_numBones << std::endl;
+
+    m_boneTransforms.resize(m_numBones);
+    m_dqs.resize(m_numBones);
 }
 
 //----------------------------------------------------------------
@@ -41,7 +44,7 @@ Model::~Model()
 
 //----------------------------------------------------------------
 
-void Model::Draw(const Shader& i_shader)
+void Model::draw(const Shader& i_shader)
 {
     for (Mesh& mesh : m_meshes)
     {
@@ -51,8 +54,7 @@ void Model::Draw(const Shader& i_shader)
 
 //----------------------------------------------------------------
 
-void Model::BoneTransform(const float& i_timeInSeconds, std::vector<glm::mat4>& io_transforms,
-                          std::vector<glm::fdualquat>& io_dqs)
+void Model::transform(const float& i_timeInSeconds)
 {
     if (!m_scene->HasAnimations())
     {
@@ -73,29 +75,26 @@ void Model::BoneTransform(const float& i_timeInSeconds, std::vector<glm::mat4>& 
     ReadNodeHeirarchy(AnimationTime, m_scene->mRootNode, Identity, IdentityDQ,
                       glm::vec3(0.0f, 0.0f, 0.0f));
 
-    io_transforms.resize(m_NumBones);
-    io_dqs.resize(m_NumBones);
-
-    for (unsigned int i = 0; i < m_NumBones; ++i)
+    for (unsigned int i = 0; i < m_numBones; ++i)
     {
-        io_transforms[i] = glm::mat4(1.0f);
-        io_transforms[i] = m_BoneInfo[i].FinalTransformation;
+        m_boneTransforms[i] = glm::mat4(1.0f);
+        m_boneTransforms[i] = m_BoneInfo[i].FinalTransformation;
     }
 
-    for (unsigned int i = 0; i < io_dqs.size(); ++i)
+    for (unsigned int i = 0; i < m_numBones; ++i)
     {
-        io_dqs[i] = IdentityDQ;
-        io_dqs[i] = m_BoneInfo[i].FinalTransDQ;
+        m_dqs[i] = IdentityDQ;
+        m_dqs[i] = m_BoneInfo[i].FinalTransDQ;
 
 #ifdef DEBUG_PRINT()
-        LOG_DUALQUAT(io_dqs[i]);
+        LOG_DUALQUAT(m_dqs[i]);
 #endif
     }
 }
 
 //----------------------------------------------------------------
 
-void Model::loadModel(const std::string& i_path)
+void Model::load(const std::string& i_path)
 {
     Assimp::Importer importer;
 
@@ -131,8 +130,8 @@ void Model::loadBones(aiNode* i_node)
         unsigned int boneIndex = 0;
         if (Bone_Mapping.find(nodeName) == Bone_Mapping.end())
         {
-            boneIndex = m_NumBones;
-            m_NumBones++;
+            boneIndex = m_numBones;
+            m_numBones++;
             Bone_Mapping[nodeName] = boneIndex;
         }
 

@@ -163,19 +163,24 @@ int main(void)
                            glm::vec3(0.005f, 0.005f,
                                      0.005f)); // it's a bit too big for our scene, so scale it down
         modelShader.setMat4("model", model);
+
         // Skinning + model rendering
-        aModel.BoneTransform(animationTime, Transforms, dualQuaternions);
-        for (unsigned int i = 0; i < Transforms.size(); ++i)
+        aModel.transform(animationTime);
+
+        unsigned int numBones = aModel.getNumBones();
+
+        for (unsigned int i = 0; i < numBones; ++i)
         {
             const std::string name = "gBones[" + std::to_string(i) + "]";
-            GLuint boneTransform = glGetUniformLocation(modelShader.ID, name.c_str());
-            glUniformMatrix4fv(boneTransform, 1, GL_FALSE, glm::value_ptr(Transforms[i]));
+            GLuint uBoneTransform = glGetUniformLocation(modelShader.ID, name.c_str());
+            glUniformMatrix4fv(uBoneTransform, 1, GL_FALSE,
+                               glm::value_ptr(aModel.getBoneTransforms()[i]));
         }
 
-        DQs.resize(dualQuaternions.size());
-        for (unsigned int i = 0; i < dualQuaternions.size(); ++i)
+        DQs.resize(numBones);
+        for (unsigned int i = 0; i < numBones; ++i)
         {
-            DQs[i] = glm::mat2x4_cast(dualQuaternions[i]);
+            DQs[i] = glm::mat2x4_cast(aModel.getDualQuaternions()[i]);
             const std::string name = "dqs[" + std::to_string(i) + "]";
             modelShader.setMat2x4(name, DQs[i]);
         }
@@ -188,7 +193,7 @@ int main(void)
         modelShader.setBool("lbsOn", lbs);
         modelShader.setBool("dqsOn", dqs);
         modelShader.setFloat("ratio", f);
-        aModel.Draw(modelShader);
+        aModel.draw(modelShader);
 
         // activate lamp shader
         // render light cube(lamp)
