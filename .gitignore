@@ -4,6 +4,9 @@ Build/
 out/
 cmake-build-*/
 
+.cache/
+.claude/
+
 # CMake files
 CMakeFiles/
 CMakeCache.txt
@@ -88,4 +91,3 @@ DualQuatLog.txt
 # Dependencies (if using package managers)
 vcpkg_installed/
 conan/
-EOF < /dev/null

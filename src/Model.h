@@ -53,7 +53,6 @@ class Model : public IModel
                                           // make sure textures aren't loaded more than once.
 
     /*Bone Data*/
-    unsigned int m_numBones = 0;
 
     std::map<std::string, unsigned int> Bone_Mapping;
     AnimationMap Animations;
@@ -73,7 +72,23 @@ class Model : public IModel
     // Override!
     virtual void draw(const Shader& i_shader) override;
 
-  private:
+    inline const unsigned int getNumBones() const
+    {
+        return m_numBones;
+    }
+
+    inline const std::vector<glm::mat4>& getBoneTransforms() const
+    {
+        return m_boneTransforms;
+    }
+
+    inline const std::vector<glm::highp_fdualquat>& getDualQuaternions() const
+    {
+        return m_dqs;
+    }
+
+
+private:
     // Model has ownership over the loaded scene
     // The application is now responsible for deleting the scene
     // The scene data is now heap allocated, so it requires application uses the same heap as Assimp
@@ -91,22 +106,11 @@ class Model : public IModel
     // A vector of dual quaternions
     std::vector<glm::highp_fdualquat> m_dqs;
 
+    unsigned int m_numBones = 0;
+
     void loadBones(aiNode* node);
 
-    inline const unsigned int getNumBones() const
-    {
-        return m_numBones;
-    }
 
-    inline const std::vector<glm::mat4>& getBoneTransforms() const
-    {
-        return m_boneTransforms;
-    }
-
-    inline const std::vector<glm::highp_fdualquat>& getDualQuaternions() const
-    {
-        return m_dqs;
-    }
 
     // processes a node in a recursive fashion. Processes each individual mesh located at the node
     // and repeats this process on its children nodes (if any).
