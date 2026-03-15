@@ -1,4 +1,4 @@
-#include "Model.h"
+#include "ModelAssimp.h"
 #include "Log.h"
 
 #include <assimp/Importer.hpp>
@@ -20,7 +20,7 @@ glm::fdualquat MakeDualQuat(const glm::fquat& rotation, const glm::vec3& transla
 
 //----------------------------------------------------------------
 
-Model::Model(const std::string& i_path)
+ModelAssimp::ModelAssimp(const std::string& i_path)
 {
     // Retrieve the directory path of the filepath
     m_directory = i_path.substr(0, i_path.find_last_of('/'));
@@ -36,16 +36,24 @@ Model::Model(const std::string& i_path)
 
 //----------------------------------------------------------------
 
-Model::~Model()
+ModelAssimp::~ModelAssimp()
 {
     // Free the heap allocated scene
-    delete m_scene;
+    if (m_scene)
+    {
+        delete m_scene;
+    }
 }
 
 //----------------------------------------------------------------
 
-void Model::draw(const Shader& i_shader)
+void ModelAssimp::draw(const Shader& i_shader)
 {
+    if (!m_scene)
+    {
+        return;
+    }
+
     for (Mesh& mesh : m_meshes)
     {
         mesh.Draw(i_shader);
@@ -54,9 +62,9 @@ void Model::draw(const Shader& i_shader)
 
 //----------------------------------------------------------------
 
-void Model::transform(const float& i_timeInSeconds)
+void ModelAssimp::transform(const float& i_timeInSeconds)
 {
-    if (!m_scene->HasAnimations())
+    if (!m_scene || !m_scene->HasAnimations())
     {
         return;
     }
@@ -92,7 +100,7 @@ void Model::transform(const float& i_timeInSeconds)
 
 //----------------------------------------------------------------
 
-void Model::load(const std::string& i_path)
+void ModelAssimp::load(const std::string& i_path)
 {
     Assimp::Importer importer;
 
@@ -118,7 +126,7 @@ void Model::load(const std::string& i_path)
 
 //----------------------------------------------------------------
 
-void Model::loadBones(aiNode* i_node)
+void ModelAssimp::loadBones(aiNode* i_node)
 {
     for (unsigned int i = 0; i < i_node->mNumChildren; ++i)
     {
@@ -139,7 +147,7 @@ void Model::loadBones(aiNode* i_node)
 
 //----------------------------------------------------------------
 
-void Model::processNode(aiNode* node)
+void ModelAssimp::processNode(aiNode* node)
 {
     m_BoneInfo.resize(Bone_Mapping.size());
     // process each mesh located at the current node
@@ -161,7 +169,7 @@ void Model::processNode(aiNode* node)
 
 //----------------------------------------------------------------
 
-void Model::processMesh(aiMesh* aiMesh)
+void ModelAssimp::processMesh(aiMesh* aiMesh)
 {
     Mesh mesh;
 
@@ -245,7 +253,7 @@ void Model::processMesh(aiMesh* aiMesh)
 
 //----------------------------------------------------------------
 
-std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type,
+std::vector<Texture> ModelAssimp::loadMaterialTextures(aiMaterial* mat, aiTextureType type,
                                                  const std::string& typeName)
 {
     std::vector<Texture> textures;
@@ -283,7 +291,7 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
 
 //----------------------------------------------------------------
 
-void Model::loadMeshBones(aiMesh* i_aiMesh, std::vector<VertexBoneData>& vertexBoneData)
+void ModelAssimp::loadMeshBones(aiMesh* i_aiMesh, std::vector<VertexBoneData>& vertexBoneData)
 {
     for (unsigned int i = 0; i < i_aiMesh->mNumBones; i++)
     {
@@ -335,7 +343,7 @@ void Model::loadMeshBones(aiMesh* i_aiMesh, std::vector<VertexBoneData>& vertexB
 
 //----------------------------------------------------------------
 
-void Model::loadAnimations(const std::string& BoneName, AnimationMap& o_animations)
+void ModelAssimp::loadAnimations(const std::string& BoneName, AnimationMap& o_animations)
 {
     for (unsigned int i = 0; i < m_scene->mNumAnimations; ++i)
     {
@@ -355,7 +363,7 @@ void Model::loadAnimations(const std::string& BoneName, AnimationMap& o_animatio
 
 //----------------------------------------------------------------
 
-void Model::ReadNodeHeirarchy(float AnimationTime, const aiNode* pNode,
+void ModelAssimp::ReadNodeHeirarchy(float AnimationTime, const aiNode* pNode,
                               const glm::mat4& ParentTransform, const glm::fdualquat& ParentDQ,
                               glm::vec3 startpos)
 {
@@ -424,7 +432,7 @@ void Model::ReadNodeHeirarchy(float AnimationTime, const aiNode* pNode,
 
 //----------------------------------------------------------------
 
-void Model::CalcInterpolatedScaling(aiVector3D& Out, float AnimationTime,
+void ModelAssimp::CalcInterpolatedScaling(aiVector3D& Out, float AnimationTime,
                                     const aiNodeAnim* pNodeAnim)
 {
     if (pNodeAnim->mNumScalingKeys == 1)
@@ -448,7 +456,7 @@ void Model::CalcInterpolatedScaling(aiVector3D& Out, float AnimationTime,
 
 //----------------------------------------------------------------
 
-void Model::CalcInterpolatedRotaion(aiQuaternion& Out, float AnimationTime,
+void ModelAssimp::CalcInterpolatedRotaion(aiQuaternion& Out, float AnimationTime,
                                     const aiNodeAnim* pNodeAnim)
 {
     // we need at least two values to interpolate...
@@ -474,7 +482,7 @@ void Model::CalcInterpolatedRotaion(aiQuaternion& Out, float AnimationTime,
 
 //----------------------------------------------------------------
 
-void Model::CalcInterpolatedPosition(aiVector3D& Out, float AnimationTime,
+void ModelAssimp::CalcInterpolatedPosition(aiVector3D& Out, float AnimationTime,
                                      const aiNodeAnim* pNodeAnim)
 {
     if (pNodeAnim->mNumPositionKeys == 1)
@@ -499,7 +507,7 @@ void Model::CalcInterpolatedPosition(aiVector3D& Out, float AnimationTime,
 
 //----------------------------------------------------------------
 
-unsigned int Model::FindScaling(float AnimationTime, const aiNodeAnim* pNodeAnim)
+unsigned int ModelAssimp::FindScaling(float AnimationTime, const aiNodeAnim* pNodeAnim)
 {
     assert(pNodeAnim->mNumScalingKeys > 0);
 
@@ -516,7 +524,7 @@ unsigned int Model::FindScaling(float AnimationTime, const aiNodeAnim* pNodeAnim
 
 //----------------------------------------------------------------
 
-unsigned int Model::FindRotation(float AnimationTime, const aiNodeAnim* pNodeAnim)
+unsigned int ModelAssimp::FindRotation(float AnimationTime, const aiNodeAnim* pNodeAnim)
 {
     assert(pNodeAnim->mNumRotationKeys > 0);
 
@@ -534,7 +542,7 @@ unsigned int Model::FindRotation(float AnimationTime, const aiNodeAnim* pNodeAni
 
 //----------------------------------------------------------------
 
-unsigned int Model::FindPosition(float AnimationTime, const aiNodeAnim* pNodeAnim)
+unsigned int ModelAssimp::FindPosition(float AnimationTime, const aiNodeAnim* pNodeAnim)
 {
     for (unsigned int i = 0; i < pNodeAnim->mNumPositionKeys - 1; i++)
     {

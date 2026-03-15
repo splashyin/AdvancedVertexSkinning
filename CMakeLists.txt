@@ -123,7 +123,7 @@ set(SOURCES
     src/Application.cpp
     src/Lamp.cpp
     src/Mesh.cpp
-    src/Model.cpp
+    src/ModelAssimp.cpp
     src/Skeleton.cpp
     src/vendor/imgui/imgui.cpp
     src/vendor/imgui/imgui_demo.cpp
@@ -140,7 +140,7 @@ set(HEADERS
     src/Lamp.h
     src/Log.h
     src/Mesh.h
-    src/Model.h
+    src/ModelAssimp.h
     src/Shader.h
     src/Skeleton.h
     src/stb_image.h

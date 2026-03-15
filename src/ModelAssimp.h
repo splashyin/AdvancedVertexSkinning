@@ -32,21 +32,21 @@ glm::quat quatcast(glm::mat4 t);
 typedef std::map<std::string, const aiNodeAnim*> nodeAnimationMap;
 typedef std::map<std::string, nodeAnimationMap> AnimationMap;
 
-class Model : public IModel
+class ModelAssimp : public IModel
 {
   public:
     // Ctor
-    Model() = delete;
-    Model(const std::string& i_path);
+    ModelAssimp() = delete;
+    ModelAssimp(const std::string& i_path);
 
     // Copy Ctor
-    Model(const Model& i_model) = delete;
+    ModelAssimp(const ModelAssimp& i_ModelAssimp) = delete;
 
     // Move Ctor
-    Model(Model&& i_model) = delete;
+    ModelAssimp(ModelAssimp&& i_ModelAssimp) = delete;
 
     // Dtor
-    ~Model();
+    ~ModelAssimp();
 
     /*  Model Data */
     std::vector<Texture> textures_loaded; // stores all the textures loaded so far, optimization to
@@ -89,15 +89,15 @@ class Model : public IModel
 
 
 private:
-    // Model has ownership over the loaded scene
+    // Assimp model has ownership over the loaded scene
     // The application is now responsible for deleting the scene
     // The scene data is now heap allocated, so it requires application uses the same heap as Assimp
-    aiScene* m_scene;
+    aiScene* m_scene = nullptr;
 
     // Directory of the scene file
     std::string m_directory;
 
-    // A number of meshes of the model
+    // A number of meshes of the assimp model
     std::vector<Mesh> m_meshes;
 
     // A vector of bone transforms

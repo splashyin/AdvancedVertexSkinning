@@ -1,11 +1,12 @@
-﻿#include <GL/glew.h>
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 #include "Camera.h"
 #include "Lamp.h"
-#include "Model.h"
+#include "ModelAssimp.h"
 #include "Shader.h"
 #include "Skeleton.h"
+
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
@@ -92,7 +93,7 @@ int main(void)
     Shader modelShader("res/shaders/vertex.shader", "res/shaders/fragment.shader");
 
     // Load skinned model (FBX) from the resources directory.
-    Model aModel("../res/asset/test/get_up.fbx");
+    ModelAssimp aModel("res/asset/test/get_up.fbx");
     const unsigned int numBones = aModel.getNumBones();
 
     //===========================================================
