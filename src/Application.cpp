@@ -75,9 +75,14 @@ int main(void)
     // tell GLFW to capture our mouse
     // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    if (glewInit() != GLEW_OK)
+    glewExperimental = GL_TRUE;
+    GLenum glewErr = glewInit();
+    // GLEW_ERROR_NO_GLX_DISPLAY is a known false positive on native Wayland (no
+    // GLX display exists there); function pointers still load correctly.
+    if (glewErr != GLEW_OK && glewErr != GLEW_ERROR_NO_GLX_DISPLAY)
     {
-        std::cout << "Error!!!" << std::endl;
+        std::cout << "Failed to initialize GLEW: " << glewGetErrorString(glewErr) << std::endl;
+        return -1;
     }
 
     std::cout << glGetString(GL_VERSION) << std::endl;

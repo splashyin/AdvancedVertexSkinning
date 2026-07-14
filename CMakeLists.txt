@@ -189,8 +189,11 @@ foreach(SHADER ${SHADER_FILES})
     configure_file(${SHADER} ${CMAKE_BINARY_DIR}/res/shaders/${SHADER_NAME} COPYONLY)
 endforeach()
 
-# Create res/object directory structure (for model files)
-file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/res/asset/test)
+# Copy asset files (models, textures) to build directory maintaining directory structure
+file(GLOB_RECURSE ASSET_FILES RELATIVE "${CMAKE_SOURCE_DIR}/res/asset" "res/asset/*")
+foreach(ASSET ${ASSET_FILES})
+    configure_file(res/asset/${ASSET} ${CMAKE_BINARY_DIR}/res/asset/${ASSET} COPYONLY)
+endforeach()
 
 # Set working directory for shaders
 set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
